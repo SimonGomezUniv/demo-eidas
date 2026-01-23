@@ -51,8 +51,7 @@ class OpenID4VCIssuanceRouter {
           credential_configuration_ids: [credentialConfigId],
           grants: {
             'urn:ietf:params:oauth:grant-type:pre-authorized_code': {
-              'pre-authorized_code': preAuthorizedCode,
-              // user_pin_required: true, // Optionnel si PIN requis
+              'pre-authorized_code': preAuthorizedCode
             }
           }
         };
@@ -123,6 +122,10 @@ class OpenID4VCIssuanceRouter {
             error_description: 'Credential offer has expired',
           });
         }
+
+        // Log pour debug
+        console.log('📋 Credential Offer retournée:');
+        console.log(JSON.stringify(session.credential_offer, null, 2));
 
         // Retourner la credential offer
         res.json(session.credential_offer);
@@ -277,3 +280,4 @@ class OpenID4VCIssuanceRouter {
 }
 
 module.exports = OpenID4VCIssuanceRouter;
+module.exports.emissionSessions = emissionSessions;

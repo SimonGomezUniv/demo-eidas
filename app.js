@@ -151,18 +151,48 @@ app.post('/token', (req, res) => {
 
     // Support du pre-authorized_code (OpenID4VCI)
     if (grant_type === 'urn:ietf:params:oauth:grant-type:pre-authorized_code') {
-      // Trouver la session avec ce pre-authorized_code
-      const OpenID4VCIssuanceRouter = require('./routes/openid4vcIssuance');
+      if (!pre_authorized_code) {
+        return res.status(400).json({
+          error: 'invalid_request',
+          error_description: 'pre-authorized_code is required'
+        });
+      }
+
+      // Récupérer la session avec ce pre-authorized_code
+      const { emissionSessions } = require('./routes/openid4vcIssuance');
+      let sessionFound = null;
       
-      // On doit récupérer la session depuis quelque part
-      // Pour l'instant, on génère juste un token
+      for (const [sessionId, session] of emissionSessions.entries()) {
+        if (session.pre_authorized_code === pre_authorized_code) {
+          sessionFound = session;
+          break;
+        }
+      }
+
+      if (!sessionFound) {
+        return res.status(400).json({
+          error: 'invalid_grant',
+          error_description: 'pre-authorized_code is invalid or expired'
+        });
+      }
+
+      // Vérifier l'expiration
+      if (new Date() > sessionFound.expires_at) {
+        return res.status(400).json({
+          error: 'invalid_grant',
+          error_description: 'pre-authorized_code has expired'
+        });
+      }
+
+      // Générer un access token
       const accessToken = require('crypto').randomBytes(32).toString('hex');
+      const cNonce = require('crypto').randomBytes(16).toString('hex');
       
       return res.json({
         access_token: accessToken,
         token_type: 'Bearer',
         expires_in: 3600,
-        c_nonce: require('crypto').randomBytes(16).toString('hex'),
+        c_nonce: cNonce,
         c_nonce_expires_in: 600
       });
     }
