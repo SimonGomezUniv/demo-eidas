@@ -91,6 +91,11 @@ function displayIssuanceUI(data) {
   document.getElementById('statusCredentialType').textContent = formatCredentialType(data.credential_type);
   document.getElementById('statusIssuer').textContent = data.issuer;
   document.getElementById('statusExpiry').textContent = `${data.expires_in} secondes`;
+  
+  // Afficher l'URL du wallet
+  if (data.wallet_url) {
+    document.getElementById('walletUrl').textContent = data.wallet_url;
+  }
 
   // Scroller vers la section d'émission
   document.getElementById('issuanceSection').scrollIntoView({ behavior: 'smooth' });
@@ -284,6 +289,34 @@ function showNotification(message, type = 'info') {
     notification.style.animation = 'slideOut 0.3s ease-out';
     setTimeout(() => notification.remove(), 300);
   }, 3000);
+}
+
+/**
+ * Copier l'URL du wallet dans le presse-papiers
+ */
+function copyWalletUrl() {
+  const walletUrlElement = document.getElementById('walletUrl');
+  const walletUrl = walletUrlElement.textContent;
+  
+  navigator.clipboard.writeText(walletUrl).then(() => {
+    showNotification('URL du wallet copiée!', 'success');
+  }).catch((err) => {
+    console.error('Erreur lors de la copie:', err);
+    alert('Erreur: impossible de copier l\'URL');
+  });
+}
+
+/**
+ * Copier le credential dans le presse-papiers
+ */
+function copyCredential() {
+  const credentialToken = document.getElementById('credentialToken').textContent;
+  
+  navigator.clipboard.writeText(credentialToken).then(() => {
+    showNotification('Credential copié!', 'success');
+  }).catch((err) => {
+    console.error('Erreur lors de la copie:', err);
+  });
 }
 
 /**

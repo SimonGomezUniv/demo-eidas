@@ -66,6 +66,7 @@ class OpenID4VCIssuanceRouter {
           qr_code: qrCodeUrl,
           credential_type,
           issuer: config.issuerUrl,
+          wallet_url: wallet_url,
           authorization_endpoint: `${config.baseUrl}/authorize`,
           credential_endpoint: credentialEndpoint,
           expires_in: 600, // 10 minutes

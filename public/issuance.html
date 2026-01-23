@@ -114,6 +114,15 @@
               <img id="qrCode" src="" alt="QR Code" class="qr-image">
             </div>
             <p class="qr-subtitle">Session ID: <code id="sessionId"></code></p>
+            
+            <!-- URL du wallet affichée sous le QR -->
+            <div class="wallet-url-box">
+              <p class="wallet-url-label">URL du Wallet :</p>
+              <div class="wallet-url-display">
+                <code id="walletUrl"></code>
+                <button class="btn-copy" onclick="copyWalletUrl()" title="Copier l'URL">📋</button>
+              </div>
+            </div>
           </div>
 
           <!-- Statut et informations -->
