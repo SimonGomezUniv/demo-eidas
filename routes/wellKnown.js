@@ -29,65 +29,48 @@ router.get('/.well-known/openid-credential-issuer', (req, res) => {
   const wellKnownConfig = {
     credential_issuer: config.issuerUrl,
     authorization_servers: [config.issuerUrl],
+    token_endpoint: `${config.baseUrl}/token`,
     credential_endpoint: `${config.baseUrl}/credential`,
     batch_credential_endpoint: `${config.baseUrl}/batch_credential`,
     deferred_credential_endpoint: `${config.baseUrl}/deferred_credential`,
     notification_endpoint: `${config.baseUrl}/notification`,
-    
-    // Supported credential formats
-    credential_configurations_supported: {
-      // Custom credential type
-      'custom_credential': {
-        format: 'jwt_vc_json',
-        scope: 'custom_credential',
-        credential_definition: {
-          type: ['VerifiableCredential', 'CustomCredential'],
-          credentialSubject: {
-            type: 'object',
-            properties: {
-              customData: {
-                type: 'string',
-                description: 'Custom data field'
-              }
-            },
-            required: ['customData']
+    credentials_supported: [
+      {
+        id: 'mso_mdoc',
+        format: 'mso_mdoc',
+        doctype: 'org.iso.18013.5.1.mDL',
+        cryptographic_binding_methods_supported: ['cose_key'],
+        credential_signing_alg_values_supported: ['ES256'],
+        proof_types_supported: {
+          urn_ietf_params_oauth_proof_type_attestation: {
+            proof_signing_alg_values_supported: ['ES256']
           }
         },
-        proof_types_supported: ['jwt'],
         display: [
           {
-            name: 'Custom Credential',
+            name: 'Mobile Driving License',
             locale: 'en-US',
             logo: {
               url: `${config.baseUrl}/logo.svg`,
-              alt_text: 'Custom Credential Logo'
+              alt_text: 'mDL Logo'
             }
           }
         ]
       },
-
-      // PID (Person Identification Data) - EIDAS format
-      'eu.europa.ec.eudi.pid.1': {
-        format: 'jwt_vc_json',
-        scope: 'eu.europa.ec.eudi.pid',
-        credential_definition: {
-          type: ['VerifiableCredential', 'PersonIdentificationData'],
-          credentialSubject: {
-            type: 'object',
-            properties: {
-              family_name: { type: 'string' },
-              given_name: { type: 'string' },
-              birth_date: { type: 'string' },
-              age_over_18: { type: 'boolean' },
-              age_over_21: { type: 'boolean' }
-            },
-            required: ['family_name', 'given_name']
+      {
+        id: 'eudi_pid_sd_jwt',
+        format: 'vc+sd-jwt',
+        scope: 'eu.europa.ec.eudi.pid.1',
+        cryptographic_binding_methods_supported: ['jwk'],
+        credential_signing_alg_values_supported: ['ES256'],
+        proof_types_supported: {
+          jwt: {
+            proof_signing_alg_values_supported: ['ES256']
           }
         },
-        proof_types_supported: ['jwt'],
         display: [
           {
-            name: 'Person Identification Data',
+            name: 'EUDI PID',
             locale: 'en-US',
             logo: {
               url: `${config.baseUrl}/eidas-logo.svg`,
@@ -95,9 +78,32 @@ router.get('/.well-known/openid-credential-issuer', (req, res) => {
             }
           }
         ]
+      },
+      {
+        id: 'dc_sd_jwt',
+        format: 'dc+sd-jwt',
+        scope: 'eu.europa.ec.eudi.diploma',
+        cryptographic_binding_methods_supported: ['jwk'],
+        credential_signing_alg_values_supported: ['ES256'],
+        proof_types_supported: {
+          jwt: {
+            proof_signing_alg_values_supported: ['ES256']
+          }
+        },
+        display: [
+          {
+            name: 'Digital Credential',
+            locale: 'en-US',
+            logo: {
+              url: `${config.baseUrl}/diploma-logo.svg`,
+              alt_text: 'Digital Credential Logo'
+            }
+          }
+        ]
       }
-    },
-
+    ],
+    dpop_signing_alg_values_supported: ['ES256', 'ES384', 'ES512', 'RS256'],
+    
     // Display properties
     display: [
       {
