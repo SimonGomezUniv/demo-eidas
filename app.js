@@ -49,6 +49,14 @@ app.use((req, res, next) => {
   
   next();
 });
+app.use('/.well-known', express.static(path.join(__dirname, 'public/.well-known'), {
+  setHeaders: (res, path) => {
+    if (path.endsWith('.json')) {
+      res.setHeader('Content-Type', 'application/json');
+    }
+  }
+}));
+
 app.use(express.static(path.join(__dirname, 'public')));
 
 /*
