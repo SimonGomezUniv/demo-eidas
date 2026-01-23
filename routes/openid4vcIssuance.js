@@ -26,7 +26,8 @@ class OpenID4VCIssuanceRouter {
 
         // Générer un ID de session unique
         const sessionId = uuidv4();
-        const state = uuidv4();
+        const preAuthorizedCode = uuidv4();
+        const userPin = Math.random().toString().slice(2, 6); // PIN 4 chiffres optionnel
 
         // Utiliser la WALLET_URL depuis la config (celle du .env)
         const walletUrl = config.walletUrl;
@@ -34,20 +35,24 @@ class OpenID4VCIssuanceRouter {
         // URL de la credential offer (endpoint que la wallet va appeler)
         const credentialOfferUri = `${config.baseUrl}/offer/${sessionId}`;
 
-        // Préparer la credential offer (ce que le wallet va récupérer)
+        // Préparer la credential offer avec PRE-AUTHORIZED CODE
+        // C'est le format simple sans authentification
         const credentialOffer = {
           credential_issuer: config.issuerUrl,
           credentials: [credential_type],
-          state: state,
-          // Paramètres pour le wallet
-          grant_types_supported: ['authorization_code'],
-          authorization_server: config.issuerUrl,
+          grants: {
+            'urn:ietf:params:oauth:grant-type:pre-authorized_code': {
+              pre_authorized_code: preAuthorizedCode,
+              // user_pin_required: true, // Optionnel si PIN requis
+            }
+          }
         };
 
         // Stocker la session
         emissionSessions.set(sessionId, {
           id: sessionId,
-          state,
+          pre_authorized_code: preAuthorizedCode,
+          user_pin: userPin,
           credential_type,
           credential_data,
           credential_offer: credentialOffer,
@@ -67,7 +72,8 @@ class OpenID4VCIssuanceRouter {
 
         res.json({
           session_id: sessionId,
-          state: state,
+          pre_authorized_code: preAuthorizedCode,
+          user_pin: userPin,
           status: 'initiated',
           qr_content: qrContent,
           qr_code: qrCodeUrl,

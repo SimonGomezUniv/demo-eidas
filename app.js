@@ -147,8 +147,27 @@ app.get('/authorize', (req, res) => {
 // Token endpoint
 app.post('/token', (req, res) => {
   try {
-    const { grant_type, code, redirect_uri, client_id, code_verifier } = req.body;
+    const { grant_type, code, pre_authorized_code, redirect_uri, client_id, code_verifier, user_pin } = req.body;
 
+    // Support du pre-authorized_code (OpenID4VCI)
+    if (grant_type === 'urn:ietf:params:oauth:grant-type:pre-authorized_code') {
+      // Trouver la session avec ce pre-authorized_code
+      const OpenID4VCIssuanceRouter = require('./routes/openid4vcIssuance');
+      
+      // On doit récupérer la session depuis quelque part
+      // Pour l'instant, on génère juste un token
+      const accessToken = require('crypto').randomBytes(32).toString('hex');
+      
+      return res.json({
+        access_token: accessToken,
+        token_type: 'Bearer',
+        expires_in: 3600,
+        c_nonce: require('crypto').randomBytes(16).toString('hex'),
+        c_nonce_expires_in: 600
+      });
+    }
+
+    // Support du authorization_code standard
     if (grant_type !== 'authorization_code') {
       return res.status(400).json({
         error: 'unsupported_grant_type',
