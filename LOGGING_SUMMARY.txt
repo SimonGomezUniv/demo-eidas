@@ -1,0 +1,104 @@
+
+╔═══════════════════════════════════════════════════════════════════╗
+║                                                                   ║
+║      ✅ LOGGING DE REQUÊTES HTTP AJOUTÉ AVEC SUCCÈS !           ║
+║                                                                   ║
+╚═══════════════════════════════════════════════════════════════════╝
+
+📊 MIDDLEWARE DE LOGGING GLOBAL IMPLÉMENTÉ
+
+  Le serveur enregistre maintenant TOUTES les requêtes HTTP dans
+  la console avec des informations complètes.
+
+════════════════════════════════════════════════════════════════════
+
+📋 INFORMATIONS CAPTURÉES:
+
+  Pour chaque requête:
+    ✅ Timestamp (HH:MM:SS:mmm)
+    ✅ Méthode HTTP (GET, POST, PUT, DELETE, etc.)
+    ✅ Chemin de la requête
+    ✅ Query parameters
+
+  Pour chaque réponse:
+    ✅ Status code (200, 404, 500, etc.)
+    ✅ Taille de la réponse (bytes)
+    ✅ Durée d'exécution (ms)
+    ✅ Codes couleur pour status
+
+════════════════════════════════════════════════════════════════════
+
+🎨 FORMAT D'AFFICHAGE:
+
+  📨 [23/01/2026 14:32:45:123] GET    /path                 ?params
+      └─ 200 (1234 bytes) [45ms]
+      
+  Légende:
+    📨 = Requête entrante
+    └─ = Réponse
+    200 = Status code (vert=200-299, jaune=300-399, rouge=400+)
+    1234 = Taille en bytes
+    45ms = Temps d'exécution
+
+════════════════════════════════════════════════════════════════════
+
+📁 FICHIERS MODIFIÉS:
+
+  ✅ app.js
+     - Ajout du middleware de logging (lignes 25-56)
+     - Capture les requêtes et réponses JSON
+     - Calcule la durée d'exécution
+
+  ✅ LOGGING_GUIDE.md (créé)
+     - Guide complet d'utilisation du logging
+     - Exemples et cas d'utilisation
+     - Instructions de personnalisation
+
+════════════════════════════════════════════════════════════════════
+
+🚀 POUR DÉMARRER:
+
+  1. Lancez le serveur:
+     $ node app.js
+
+  2. Visitez une page:
+     http://localhost:3000
+
+  3. Consultez la console pour voir les logs:
+     📨 [14:32:45:001] GET    /                          
+         └─ 200 (5432 bytes) [12ms]
+
+════════════════════════════════════════════════════════════════════
+
+💡 EXEMPLES DE LOGS:
+
+  Requête réussie (200):
+    📨 [14:32:46:015] POST   /credential                
+        └─ 200 (892 bytes) [34ms]
+
+  Requête avec erreur (400):
+    📨 [14:32:47:203] POST   /presentation              
+        └─ 400 (234 bytes) [15ms]
+
+  Requête lente (>1000ms):
+    📨 [14:32:48:567] GET    /batch_credential        
+        └─ 200 (9876 bytes) [2345ms]
+
+════════════════════════════════════════════════════════════════════
+
+📚 DOCUMENTATION:
+
+  Consultez LOGGING_GUIDE.md pour:
+    • Guide complet d'utilisation
+    • Interprétation des couleurs
+    • Cas d'utilisation
+    • Personnalisations possibles
+    • Filtrage optionnel
+
+════════════════════════════════════════════════════════════════════
+
+✨ PRÊT À UTILISER !
+
+  Le logging est actif dès que vous démarrez le serveur.
+  Aucune configuration supplémentaire n'est nécessaire.
+

@@ -21,6 +21,55 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
+// ============ Logging Middleware ============
+// Log toutes les requêtes
+app.use((req, res, next) => {
+  const timestamp = new Date().toLocaleString('fr-FR', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    millisecond: '3-digit'
+  });
+  
+  const method = req.method.padEnd(6);
+  const pathDisplay = req.path.substring(0, 50).padEnd(50);
+  const query = req.query && Object.keys(req.query).length > 0 ? ` ?${JSON.stringify(req.query).substring(0, 40)}` : '';
+  
+  console.log(`📨 [${timestamp}] ${method} ${pathDisplay}${query}`);
+  
+  // Capturer le moment de la réponse
+  const startTime = Date.now();
+  const originalSend = res.send;
+  const originalJson = res.json;
+  
+  // Wrapper pour send()
+  res.send = function(data) {
+    const duration = Date.now() - startTime;
+    const statusCode = res.statusCode;
+    const statusColor = statusCode >= 400 ? '\x1b[31m' : statusCode >= 300 ? '\x1b[33m' : '\x1b[32m';
+    const resetColor = '\x1b[0m';
+    const size = data ? (typeof data === 'string' ? data.length : JSON.stringify(data).length) : '0';
+    console.log(`    └─ ${statusColor}${statusCode}${resetColor} (${size} bytes) [${duration}ms]`);
+    return originalSend.call(this, data);
+  };
+  
+  // Wrapper pour json()
+  res.json = function(data) {
+    const duration = Date.now() - startTime;
+    const statusCode = res.statusCode;
+    const statusColor = statusCode >= 400 ? '\x1b[31m' : statusCode >= 300 ? '\x1b[33m' : '\x1b[32m';
+    const resetColor = '\x1b[0m';
+    const size = JSON.stringify(data).length;
+    console.log(`    └─ ${statusColor}${statusCode}${resetColor} (${size} bytes) [${duration}ms]`);
+    return originalJson.call(this, data);
+  };
+  
+  next();
+});
+
 // Routes Well-Known (OpenID4VC, OpenID4VP, OAuth2)
 const createWellKnownRoutes = require('./routes/wellKnown');
 const wellKnownRoutes = createWellKnownRoutes(keyManager);
