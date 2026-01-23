@@ -35,6 +35,7 @@ router.get('/.well-known/openid-credential-issuer', (req, res) => {
 
     credential_configurations_supported: {
       custom_credential: {
+        scope: "custom_credential",
         format: 'vc+sd-jwt',
         claims: {
               "given_name": { "mandatory": true },
