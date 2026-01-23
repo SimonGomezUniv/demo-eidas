@@ -35,7 +35,7 @@ router.get('/.well-known/openid-credential-issuer', (req, res) => {
     deferred_credential_endpoint: `${config.baseUrl}/deferred_credential`,
     notification_endpoint: `${config.baseUrl}/notification`,
     credential_configurations_supported: {
-      custom_credential: {
+      'custom_credential': {
         format: 'vc+sd-jwt',
         scope: 'custom_credential',
         cryptographic_binding_methods_supported: ['jwk'],
@@ -64,7 +64,7 @@ router.get('/.well-known/openid-credential-issuer', (req, res) => {
           }
         ]
       },
-      mso_mdoc: {
+      'mso_mdoc': {
         format: 'mso_mdoc',
         doctype: 'org.iso.18013.5.1.mDL',
         cryptographic_binding_methods_supported: ['cose_key'],
@@ -93,7 +93,7 @@ router.get('/.well-known/openid-credential-issuer', (req, res) => {
           }
         ]
       },
-      eudi_pid_sd_jwt: {
+      'eu.europa.ec.eudi.pid.1': {
         format: 'vc+sd-jwt',
         scope: 'eu.europa.ec.eudi.pid.1',
         cryptographic_binding_methods_supported: ['jwk'],
@@ -122,7 +122,7 @@ router.get('/.well-known/openid-credential-issuer', (req, res) => {
           }
         ]
       },
-      dc_sd_jwt: {
+      'eu.europa.ec.eudi.diploma': {
         format: 'dc+sd-jwt',
         scope: 'eu.europa.ec.eudi.diploma',
         cryptographic_binding_methods_supported: ['jwk'],

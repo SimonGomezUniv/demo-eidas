@@ -40,8 +40,8 @@ class OpenID4VCIssuanceRouter {
         // Mapper les credential_type aux credential_configuration_ids
         const credentialConfigMap = {
           'custom_credential': 'custom_credential',
-          'eu.europa.ec.eudi.pid.1': 'eudi_pid_sd_jwt',
-          'eu.europa.ec.eudi.diploma': 'dc_sd_jwt'
+          'eu.europa.ec.eudi.pid.1': 'eu.europa.ec.eudi.pid.1',
+          'eu.europa.ec.eudi.diploma': 'eu.europa.ec.eudi.diploma'
         };
         
         const credentialConfigId = credentialConfigMap[credential_type] || credential_type;
