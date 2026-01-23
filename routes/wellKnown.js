@@ -28,21 +28,19 @@ function createWellKnownRoutes(keyManager) {
 router.get('/.well-known/openid-credential-issuer', (req, res) => {
   const wellKnownConfig = {
     credential_issuer: config.issuerUrl,
-    authorization_servers: [config.issuerUrl],
-    token_endpoint: `${config.baseUrl}/token`,
     credential_endpoint: `${config.baseUrl}/credential`,
     batch_credential_endpoint: `${config.baseUrl}/batch_credential`,
     deferred_credential_endpoint: `${config.baseUrl}/deferred_credential`,
     notification_endpoint: `${config.baseUrl}/notification`,
+
     credential_configurations_supported: {
-      'custom_credential': {
+      custom_credential: {
         format: 'vc+sd-jwt',
-        scope: 'custom_credential',
         cryptographic_binding_methods_supported: ['jwk'],
-        credential_signing_alg_values_supported: ['ES256', 'RS256'],
+        credential_signing_alg_values_supported: ['ES256'],
         proof_types_supported: {
           jwt: {
-            proof_signing_alg_values_supported: ['ES256', 'RS256']
+            proof_signing_alg_values_supported: ['ES256']
           }
         },
         display: [
@@ -64,38 +62,9 @@ router.get('/.well-known/openid-credential-issuer', (req, res) => {
           }
         ]
       },
-      'mso_mdoc': {
-        format: 'mso_mdoc',
-        doctype: 'org.iso.18013.5.1.mDL',
-        cryptographic_binding_methods_supported: ['cose_key'],
-        credential_signing_alg_values_supported: ['ES256'],
-        proof_types_supported: {
-          urn_ietf_params_oauth_proof_type_attestation: {
-            proof_signing_alg_values_supported: ['ES256']
-          }
-        },
-        display: [
-          {
-            name: 'Mobile Driving License',
-            locale: 'en-US',
-            logo: {
-              url: `${config.baseUrl}/logo.svg`,
-              alt_text: 'mDL Logo'
-            }
-          },
-          {
-            name: 'Permis de Conduire Numérique',
-            locale: 'fr-FR',
-            logo: {
-              url: `${config.baseUrl}/logo.svg`,
-              alt_text: 'Logo Permis de Conduire Numérique'
-            }
-          }
-        ]
-      },
+
       'eu.europa.ec.eudi.pid.1': {
         format: 'vc+sd-jwt',
-        scope: 'eu.europa.ec.eudi.pid.1',
         cryptographic_binding_methods_supported: ['jwk'],
         credential_signing_alg_values_supported: ['ES256'],
         proof_types_supported: {
@@ -106,71 +75,35 @@ router.get('/.well-known/openid-credential-issuer', (req, res) => {
         display: [
           {
             name: 'EUDI PID',
-            locale: 'en-US',
-            logo: {
-              url: `${config.baseUrl}/eidas-logo.svg`,
-              alt_text: 'EIDAS PID Logo'
-            }
+            locale: 'en-US'
           },
           {
             name: 'Identité Numérique Européenne',
-            locale: 'fr-FR',
-            logo: {
-              url: `${config.baseUrl}/eidas-logo.svg`,
-              alt_text: 'Logo Identité Numérique Européenne'
-            }
+            locale: 'fr-FR'
           }
         ]
       },
+
       'eu.europa.ec.eudi.diploma': {
-        format: 'dc+sd-jwt',
-        scope: 'eu.europa.ec.eudi.diploma',
+        format: 'vc+sd-jwt',
         cryptographic_binding_methods_supported: ['jwk'],
         credential_signing_alg_values_supported: ['ES256'],
         proof_types_supported: {
           jwt: {
             proof_signing_alg_values_supported: ['ES256']
           }
-        },
-        display: [
-          {
-            name: 'Digital Credential',
-            locale: 'en-US',
-            logo: {
-              url: `${config.baseUrl}/diploma-logo.svg`,
-              alt_text: 'Digital Credential Logo'
-            }
-          },
-          {
-            name: 'Justificatif Numérique',
-            locale: 'fr-FR',
-            logo: {
-              url: `${config.baseUrl}/diploma-logo.svg`,
-              alt_text: 'Logo Justificatif Numérique'
-            }
-          }
-        ]
+        }
       }
     },
-    dpop_signing_alg_values_supported: ['ES256', 'ES384', 'ES512', 'RS256'],
-    
-    // Display properties
+
     display: [
       {
         name: 'EIDAS Credential Issuer',
-        locale: 'en-US',
-        logo: {
-          url: `${config.baseUrl}/issuer-logo.svg`,
-          alt_text: 'EIDAS Issuer Logo'
-        }
+        locale: 'en-US'
       },
       {
         name: 'Émetteur de Justificatifs EIDAS',
-        locale: 'fr-FR',
-        logo: {
-          url: `${config.baseUrl}/issuer-logo.svg`,
-          alt_text: 'Logo Émetteur EIDAS'
-        }
+        locale: 'fr-FR'
       }
     ]
   };
@@ -228,45 +161,24 @@ router.get('/.well-known/oauth-authorization-server', (req, res) => {
     authorization_endpoint: `${config.baseUrl}/authorize`,
     token_endpoint: `${config.baseUrl}/token`,
     jwks_uri: `${config.baseUrl}/.well-known/jwks.json`,
+
     grant_types_supported: [
       'authorization_code',
       'urn:ietf:params:oauth:grant-type:pre-authorized_code'
     ],
+
     response_types_supported: ['code'],
-    response_modes_supported: ['query', 'fragment'],
-    code_challenge_methods_supported: ['S256', 'plain'],
+    code_challenge_methods_supported: ['S256'],
     token_endpoint_auth_methods_supported: ['none'],
-    dpop_signing_alg_values_supported: ['ES256', 'RS256'],
-    // Pre-authorized Code Flow Support
-    pre_authorized_grant_anonymous_access_supported: true,
-    authorization_challenge_endpoint: `${config.baseUrl}/authorization_challenge`,
-    pushed_authorization_request_endpoint: `${config.baseUrl}/par`,
-    require_pushed_authorization_requests: false,
-    // Additional required fields
-    scopes_supported: [
-      'openid',
-      'profile',
-      'custom_credential',
-      'eu.europa.ec.eudi.pid.1',
-      'eu.europa.ec.eudi.diploma'
-    ],
-    claims_supported: [
-      'sub',
-      'iss',
-      'aud',
-      'exp',
-      'iat'
-    ],
-    subject_types_supported: ['public'],
-    id_token_signing_alg_values_supported: ['RS256', 'ES256'],
-    token_endpoint_auth_signing_alg_values_supported: ['RS256', 'ES256'],
-    request_object_signing_alg_values_supported: ['RS256', 'ES256'],
-    request_parameter_supported: true,
-    request_uri_parameter_supported: true
+
+    dpop_signing_alg_values_supported: ['ES256'],
+
+    pre_authorized_grant_anonymous_access_supported: true
   };
 
   res.json(authServerConfig);
 });
+
 
 /**
  * JWKS (JSON Web Key Set) endpoint
