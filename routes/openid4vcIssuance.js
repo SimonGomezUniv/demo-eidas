@@ -67,6 +67,7 @@ class OpenID4VCIssuanceRouter {
 
         res.json({
           session_id: sessionId,
+          state: state,
           status: 'initiated',
           qr_content: qrContent,
           qr_code: qrCodeUrl,

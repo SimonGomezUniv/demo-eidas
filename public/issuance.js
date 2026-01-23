@@ -1,4 +1,5 @@
 let currentSessionId = null;
+let currentState = null;
 let statusCheckInterval = null;
 
 /**
@@ -62,6 +63,7 @@ async function initiateIssuance() {
 
     const data = await response.json();
     currentSessionId = data.session_id;
+    currentState = data.state;
 
     // Afficher le QR code et le statut
     displayIssuanceUI(data);
@@ -238,10 +240,15 @@ async function simulateScan() {
 
     // Générer un code d'authentification simulé
     const code = Math.random().toString(36).substring(7);
-    const state = document.querySelector('code').textContent; // On récupère l'ID de session
+    
+    // Utiliser le state stocké lors de l'initialisation
+    if (!currentState) {
+      alert('Erreur: state manquant. Veuillez réinitialiser.');
+      return;
+    }
 
-    // Appeler le callback
-    const callbackUrl = `/issuance/callback?code=${code}&state=${state}`;
+    // Appeler le callback avec le state correct
+    const callbackUrl = `/issuance/callback?code=${code}&state=${currentState}`;
 
     const response = await fetch(callbackUrl);
 
@@ -328,6 +335,7 @@ function resetForm() {
 
   // Réinitialiser les variables
   currentSessionId = null;
+  currentState = null;
 
   // Afficher la section de configuration
   const configSection = document.querySelector('.configuration-section');
