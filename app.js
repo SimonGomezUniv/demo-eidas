@@ -76,11 +76,12 @@ app.use((req, res, next) => {
   next();
 });
 
+/*
 // Routes Well-Known (OpenID4VC, OpenID4VP, OAuth2)
 const createWellKnownRoutes = require('./routes/wellKnown');
 const wellKnownRoutes = createWellKnownRoutes(keyManager);
 app.use('/', wellKnownRoutes);
-
+*/
 // Routes OpenID4VC avec signature JWT
 app.use('/', openid4vcRouter.getRouter());
 
