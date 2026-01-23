@@ -138,7 +138,7 @@ router.get('/.well-known/openid-verifier', (req, res) => {
     client_metadata: {
       client_id: config.issuerUrl,
       client_name: 'EIDAS Verifier',
-      logo_uri: `${config.baseUrl}/verifier-logo.png`,
+      logo_uri: `${config.baseUrl}/verifier-logo.svg`,
       contacts: ['support@example.com']
     },
 
