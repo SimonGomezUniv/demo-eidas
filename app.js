@@ -200,7 +200,7 @@ app.post('/token', (req, res) => {
       const accessToken = require('crypto').randomBytes(32).toString('hex');
       const cNonce = require('crypto').randomBytes(16).toString('hex');
       
-      console.log(`   ✓ Access token generated: ${accessToken.substring(0, 8)}...`);
+      console.log(`   ✓ Access token generated: ${accessToken}` );
       console.log(`   ✓ c_nonce generated: ${cNonce.substring(0, 8)}...`);
       console.log(`   ✅ Token endpoint successful - returning access token\n`);
       
