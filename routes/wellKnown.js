@@ -32,7 +32,7 @@ router.get('/.well-known/openid-credential-issuer', (req, res) => {
     batch_credential_endpoint: `${config.baseUrl}/batch_credential`,
     deferred_credential_endpoint: `${config.baseUrl}/deferred_credential`,
     notification_endpoint: `${config.baseUrl}/notification`,
-    token_endpoint: `${config.baseUrl}/token`,
+    offer_endpoint: `${config.baseUrl}/offer/`,
 
     credential_configurations_supported: {
       custom_credential: {
