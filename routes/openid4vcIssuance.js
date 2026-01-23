@@ -207,9 +207,11 @@ class OpenID4VCIssuanceRouter {
         session.completed_at = new Date();
 
         // Rediriger vers le wallet avec le credential
-        const redirectUrl = new URL(`${session.auth_url}`);
+        // Reconstruire l'URL du wallet avec le credential
+        const redirectUrl = new URL(session.wallet_url);
         redirectUrl.searchParams.set('credential', signedCredential);
         redirectUrl.searchParams.set('credential_format', 'jwt_vc_json');
+        redirectUrl.searchParams.set('state', state);
 
         res.redirect(redirectUrl.toString());
       } catch (error) {
