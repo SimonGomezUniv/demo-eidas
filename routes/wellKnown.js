@@ -36,13 +36,13 @@ router.get('/.well-known/openid-credential-issuer', (req, res) => {
     notification_endpoint: `${config.baseUrl}/notification`,
     credential_configurations_supported: {
       custom_credential: {
-        format: 'jwt_vc_json',
+        format: 'vc+sd-jwt',
         scope: 'custom_credential',
         cryptographic_binding_methods_supported: ['jwk'],
-        credential_signing_alg_values_supported: ['RS256'],
+        credential_signing_alg_values_supported: ['ES256', 'RS256'],
         proof_types_supported: {
           jwt: {
-            proof_signing_alg_values_supported: ['RS256']
+            proof_signing_alg_values_supported: ['ES256', 'RS256']
           }
         },
         display: [
