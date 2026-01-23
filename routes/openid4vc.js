@@ -19,16 +19,35 @@ class OpenID4VCRouter {
     // Credential endpoint - Émettre un credential unique
     router.post('/credential', (req, res) => {
       try {
+        const timestamp = new Date().toLocaleString('fr-FR', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+          millisecond: '3-digit'
+        });
+
         const { credential_type, subject, ...credentialData } = req.body;
+
+        console.log(`\n📋 [${timestamp}] /credential endpoint called`);
+        console.log(`   • credential_type: ${credential_type}`);
+        console.log(`   • subject: ${subject || 'N/A'}`);
+        console.log(`   • credentialData keys: ${Object.keys(credentialData).join(', ') || 'none'}`);
+        console.log(`   • Full payload: ${JSON.stringify(req.body)}`);
 
         // Valider le type de credential
         const supportedTypes = ['custom_credential', 'eu.europa.ec.eudi.pid.1'];
         if (!supportedTypes.includes(credential_type)) {
+          console.log(`   ❌ Unsupported credential type: ${credential_type}`);
           return res.status(400).json({
             error: 'unsupported_credential_type',
             error_description: `Credential type '${credential_type}' is not supported`,
           });
         }
+
+        console.log(`   ✓ Credential type validated`);
 
         // Créer et signer le credential
         const signedCredential = this.signer.signCredential(
@@ -36,11 +55,20 @@ class OpenID4VCRouter {
           credential_type
         );
 
+        const cNonce = Math.random().toString(36).substring(7);
+
+        console.log(`   ✓ Credential signed`);
+        console.log(`   • Signed credential (first 50 chars): ${signedCredential}...`);
+        console.log(`   • Credential format: jwt_vc_json`);
+        console.log(`   • c_nonce generated: ${cNonce}`);
+        console.log(`   • c_nonce_expires_in: 300`);
+        console.log(`   ✅ Credential issued successfully\n`);
+
         // Réponse OpenID4VC
         res.json({
           credential: signedCredential,
           credential_format: 'jwt_vc_json',
-          c_nonce: Math.random().toString(36).substring(7),
+          c_nonce: cNonce,
           c_nonce_expires_in: 300,
         });
       } catch (error) {
