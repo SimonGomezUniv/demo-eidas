@@ -133,7 +133,9 @@ app.post('/token', (req, res) => {
       millisecond: '3-digit'
     });
     
-    const { grant_type, code, pre_authorized_code, redirect_uri, client_id, code_verifier, user_pin } = req.body;
+    const { grant_type, code, redirect_uri, client_id, code_verifier, user_pin } = req.body;
+    const pre_authorized_code = req.body['pre-authorized_code'];
+    
     
     console.log(`\n🔑 [${timestamp}] /token endpoint called`);
     console.log(`   • grant_type: ${grant_type}`);
