@@ -36,6 +36,36 @@ router.get('/.well-known/openid-credential-issuer', (req, res) => {
     notification_endpoint: `${config.baseUrl}/notification`,
     credentials_supported: [
       {
+        id: 'custom_credential',
+        format: 'jwt_vc_json',
+        scope: 'custom_credential',
+        cryptographic_binding_methods_supported: ['jwk'],
+        credential_signing_alg_values_supported: ['RS256'],
+        proof_types_supported: {
+          jwt: {
+            proof_signing_alg_values_supported: ['RS256']
+          }
+        },
+        display: [
+          {
+            name: 'Custom Credential',
+            locale: 'en-US',
+            logo: {
+              url: `${config.baseUrl}/logo.svg`,
+              alt_text: 'Custom Credential Logo'
+            }
+          },
+          {
+            name: 'Identifiant Personnalisé',
+            locale: 'fr-FR',
+            logo: {
+              url: `${config.baseUrl}/logo.svg`,
+              alt_text: 'Logo Identifiant Personnalisé'
+            }
+          }
+        ]
+      },
+      {
         id: 'mso_mdoc',
         format: 'mso_mdoc',
         doctype: 'org.iso.18013.5.1.mDL',
@@ -53,6 +83,14 @@ router.get('/.well-known/openid-credential-issuer', (req, res) => {
             logo: {
               url: `${config.baseUrl}/logo.svg`,
               alt_text: 'mDL Logo'
+            }
+          },
+          {
+            name: 'Permis de Conduire Numérique',
+            locale: 'fr-FR',
+            logo: {
+              url: `${config.baseUrl}/logo.svg`,
+              alt_text: 'Logo Permis de Conduire Numérique'
             }
           }
         ]
@@ -76,6 +114,14 @@ router.get('/.well-known/openid-credential-issuer', (req, res) => {
               url: `${config.baseUrl}/eidas-logo.svg`,
               alt_text: 'EIDAS PID Logo'
             }
+          },
+          {
+            name: 'Identité Numérique Européenne',
+            locale: 'fr-FR',
+            logo: {
+              url: `${config.baseUrl}/eidas-logo.svg`,
+              alt_text: 'Logo Identité Numérique Européenne'
+            }
           }
         ]
       },
@@ -98,6 +144,14 @@ router.get('/.well-known/openid-credential-issuer', (req, res) => {
               url: `${config.baseUrl}/diploma-logo.svg`,
               alt_text: 'Digital Credential Logo'
             }
+          },
+          {
+            name: 'Justificatif Numérique',
+            locale: 'fr-FR',
+            logo: {
+              url: `${config.baseUrl}/diploma-logo.svg`,
+              alt_text: 'Logo Justificatif Numérique'
+            }
           }
         ]
       }
@@ -112,6 +166,14 @@ router.get('/.well-known/openid-credential-issuer', (req, res) => {
         logo: {
           url: `${config.baseUrl}/issuer-logo.svg`,
           alt_text: 'EIDAS Issuer Logo'
+        }
+      },
+      {
+        name: 'Émetteur de Justificatifs EIDAS',
+        locale: 'fr-FR',
+        logo: {
+          url: `${config.baseUrl}/issuer-logo.svg`,
+          alt_text: 'Logo Émetteur EIDAS'
         }
       }
     ]
