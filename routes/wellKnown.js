@@ -236,7 +236,33 @@ router.get('/.well-known/oauth-authorization-server', (req, res) => {
     response_modes_supported: ['query', 'fragment'],
     code_challenge_methods_supported: ['S256', 'plain'],
     token_endpoint_auth_methods_supported: ['none'],
-    dpop_signing_alg_values_supported: ['ES256', 'RS256']
+    dpop_signing_alg_values_supported: ['ES256', 'RS256'],
+    // Pre-authorized Code Flow Support
+    pre_authorized_grant_anonymous_access_supported: true,
+    authorization_challenge_endpoint: `${config.baseUrl}/authorization_challenge`,
+    pushed_authorization_request_endpoint: `${config.baseUrl}/par`,
+    require_pushed_authorization_requests: false,
+    // Additional required fields
+    scopes_supported: [
+      'openid',
+      'profile',
+      'custom_credential',
+      'eu.europa.ec.eudi.pid.1',
+      'eu.europa.ec.eudi.diploma'
+    ],
+    claims_supported: [
+      'sub',
+      'iss',
+      'aud',
+      'exp',
+      'iat'
+    ],
+    subject_types_supported: ['public'],
+    id_token_signing_alg_values_supported: ['RS256', 'ES256'],
+    token_endpoint_auth_signing_alg_values_supported: ['RS256', 'ES256'],
+    request_object_signing_alg_values_supported: ['RS256', 'ES256'],
+    request_parameter_supported: true,
+    request_uri_parameter_supported: true
   };
 
   res.json(authServerConfig);
