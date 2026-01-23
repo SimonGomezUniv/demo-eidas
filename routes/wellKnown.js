@@ -82,17 +82,6 @@ router.get('/.well-known/openid-credential-issuer', (req, res) => {
             locale: 'fr-FR'
           }
         ]
-      },
-
-      'eu.europa.ec.eudi.diploma': {
-        format: 'vc+sd-jwt',
-        cryptographic_binding_methods_supported: ['jwk'],
-        credential_signing_alg_values_supported: ['ES256'],
-        proof_types_supported: {
-          jwt: {
-            proof_signing_alg_values_supported: ['ES256']
-          }
-        }
       }
     },
 
@@ -159,7 +148,6 @@ router.get('/.well-known/oauth-authorization-server', (req, res) => {
   const authServerConfig = {
     issuer: config.issuerUrl,
     authorization_endpoint: `${config.baseUrl}/authorize`,
-    token_endpoint: `${config.baseUrl}/token`,
     jwks_uri: `${config.baseUrl}/.well-known/jwks.json`,
 
     grant_types_supported: [
