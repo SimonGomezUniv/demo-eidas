@@ -46,6 +46,10 @@ router.get('/.well-known/openid-credential-issuer', (req, res) => {
         display: [
           {
             name: 'Custom Credential',
+            claims: {
+              "given_name": { "mandatory": true },
+              "family_name": { "mandatory": false }
+            },
             locale: 'en-US',
             logo: {
               url: `${config.baseUrl}/logo.svg`,
