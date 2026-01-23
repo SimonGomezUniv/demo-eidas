@@ -227,20 +227,27 @@ router.get('/.well-known/oauth-authorization-server', (req, res) => {
     issuer: config.issuerUrl,
     authorization_endpoint: `${config.baseUrl}/authorize`,
     token_endpoint: `${config.baseUrl}/token`,
-    userinfo_endpoint: `${config.baseUrl}/userinfo`,
+    pushed_authorization_request_endpoint: `${config.baseUrl}/par`,
+    authorization_challenge_endpoint: `${config.baseUrl}/challenge`,
     jwks_uri: `${config.baseUrl}/.well-known/jwks.json`,
-    scopes_supported: [
-      'openid',
-      'profile',
-      'email',
-      'custom_credential',
-      'eu.europa.ec.eudi.pid'
+    grant_types_supported: [
+      'authorization_code',
+      'urn:ietf:params:oauth:grant-type:pre-authorized_code'
     ],
-    response_types_supported: ['code', 'id_token', 'token', 'code id_token'],
-    response_modes_supported: ['query', 'fragment', 'form_post'],
-    grant_types_supported: ['authorization_code', 'implicit', 'refresh_token'],
-    token_endpoint_auth_methods_supported: ['client_secret_basic', 'client_secret_post', 'none'],
+    pre_authorized_grant_anonymous_access_supported: true,
     code_challenge_methods_supported: ['S256', 'plain'],
+    dpop_signing_alg_values_supported: ['ES256', 'RS256'],
+    require_pushed_authorization_requests: false,
+    response_types_supported: ['code'],
+    response_modes_supported: ['query', 'fragment', 'form_post'],
+    subject_types_supported: ['public', 'pairwise'],
+    id_token_signing_alg_values_supported: ['RS256', 'ES256'],
+    token_endpoint_auth_methods_supported: ['client_secret_basic', 'client_secret_post', 'client_secret_jwt', 'private_key_jwt', 'none'],
+    token_endpoint_auth_signing_alg_values_supported: ['RS256', 'ES256'],
+    revocation_endpoint: `${config.baseUrl}/revoke`,
+    revocation_endpoint_auth_methods_supported: ['client_secret_basic', 'client_secret_post', 'none'],
+    introspection_endpoint: `${config.baseUrl}/introspect`,
+    introspection_endpoint_auth_methods_supported: ['client_secret_basic', 'client_secret_post', 'none'],
     claim_types_supported: ['normal'],
     claims_supported: [
       'sub',
@@ -248,12 +255,23 @@ router.get('/.well-known/oauth-authorization-server', (req, res) => {
       'aud',
       'exp',
       'iat',
+      'auth_time',
       'custom_data',
       'family_name',
       'given_name',
       'birth_date',
       'age_over_18'
-    ]
+    ],
+    scopes_supported: [
+      'openid',
+      'profile',
+      'email',
+      'custom_credential',
+      'eu.europa.ec.eudi.pid',
+      'eu.europa.ec.eudi.pid.1'
+    ],
+    service_documentation: `${config.baseUrl}/docs`,
+    ui_locales_supported: ['en-US', 'fr-FR']
   };
 
   res.json(authServerConfig);
