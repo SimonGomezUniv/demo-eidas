@@ -36,6 +36,10 @@ router.get('/.well-known/openid-credential-issuer', (req, res) => {
     credential_configurations_supported: {
       custom_credential: {
         format: 'vc+sd-jwt',
+        claims: {
+              "given_name": { "mandatory": true },
+              "family_name": { "mandatory": false }
+            },
         cryptographic_binding_methods_supported: ['jwk'],
         credential_signing_alg_values_supported: ['ES256'],
         proof_types_supported: {
@@ -46,10 +50,6 @@ router.get('/.well-known/openid-credential-issuer', (req, res) => {
         display: [
           {
             name: 'Custom Credential',
-            claims: {
-              "given_name": { "mandatory": true },
-              "family_name": { "mandatory": false }
-            },
             locale: 'en-US',
             logo: {
               url: `${config.baseUrl}/logo.svg`,
