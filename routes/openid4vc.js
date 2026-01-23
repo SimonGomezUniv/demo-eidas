@@ -29,7 +29,7 @@ class OpenID4VCRouter {
           millisecond: '3-digit'
         });
 
-        const { credential_type, subject, ...credentialData } = req.body;
+        const { credential_configuration_id: credential_type, subject, ...credentialData } = req.body;
 
         console.log(`\n📋 [${timestamp}] /credential endpoint called`);
         console.log(`   • credential_type: ${credential_type}`);
