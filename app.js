@@ -19,7 +19,6 @@ const openid4vpRouter = new OpenID4VPRouter(keyManager);
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, 'public')));
 
 // ============ Logging Middleware ============
 // ============ Logging Middleware ============
@@ -29,7 +28,7 @@ app.use((req, res, next) => {
   if (req.path.includes('/issuance/session/')) {
     return next();
   }
-
+  
   const timestamp = new Date().toLocaleString('fr-FR', {
     year: 'numeric',
     month: '2-digit',
@@ -44,37 +43,13 @@ app.use((req, res, next) => {
   const pathDisplay = req.path.substring(0, 50).padEnd(50);
   const query = req.query && Object.keys(req.query).length > 0 ? ` ?${JSON.stringify(req.query).substring(0, 40)}` : '';
   
-  console.log(`📨 [${timestamp}] ${method} ${pathDisplay}${query}`);
+  const ip = req.ip || req.connection.remoteAddress;
+  console.log(`📨 [${timestamp}] ${method} ${pathDisplay}${query} - IP: ${ip}`);
   
-  // Capturer le moment de la réponse
-  const startTime = Date.now();
-  const originalSend = res.send;
-  const originalJson = res.json;
-  
-  // Wrapper pour send()
-  res.send = function(data) {
-    const duration = Date.now() - startTime;
-    const statusCode = res.statusCode;
-    const statusColor = statusCode >= 400 ? '\x1b[31m' : statusCode >= 300 ? '\x1b[33m' : '\x1b[32m';
-    const resetColor = '\x1b[0m';
-    const size = data ? (typeof data === 'string' ? data.length : JSON.stringify(data).length) : '0';
-    console.log(`    └─ ${statusColor}${statusCode}${resetColor} (${size} bytes) [${duration}ms]`);
-    return originalSend.call(this, data);
-  };
-  
-  // Wrapper pour json()
-  res.json = function(data) {
-    const duration = Date.now() - startTime;
-    const statusCode = res.statusCode;
-    const statusColor = statusCode >= 400 ? '\x1b[31m' : statusCode >= 300 ? '\x1b[33m' : '\x1b[32m';
-    const resetColor = '\x1b[0m';
-    const size = JSON.stringify(data).length;
-    console.log(`    └─ ${statusColor}${statusCode}${resetColor} (${size} bytes) [${duration}ms]`);
-    return originalJson.call(this, data);
-  };
   
   next();
 });
+app.use(express.static(path.join(__dirname, 'public')));
 
 /*
 // Routes Well-Known (OpenID4VC, OpenID4VP, OAuth2)
