@@ -37,12 +37,21 @@ class OpenID4VCIssuanceRouter {
 
         // Préparer la credential offer avec PRE-AUTHORIZED CODE
         // C'est le format simple sans authentification
+        // Mapper les credential_type aux credential_configuration_ids
+        const credentialConfigMap = {
+          'custom_credential': 'custom_credential',
+          'eu.europa.ec.eudi.pid.1': 'eudi_pid_sd_jwt',
+          'eu.europa.ec.eudi.diploma': 'dc_sd_jwt'
+        };
+        
+        const credentialConfigId = credentialConfigMap[credential_type] || credential_type;
+
         const credentialOffer = {
           credential_issuer: config.issuerUrl,
-          credentials: [credential_type],
+          credential_configuration_ids: [credentialConfigId],
           grants: {
             'urn:ietf:params:oauth:grant-type:pre-authorized_code': {
-              pre_authorized_code: preAuthorizedCode,
+              'pre-authorized_code': preAuthorizedCode,
               // user_pin_required: true, // Optionnel si PIN requis
             }
           }
