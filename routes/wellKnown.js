@@ -154,6 +154,8 @@ router.get('/.well-known/oauth-authorization-server', (req, res) => {
   const authServerConfig = {
     issuer: config.issuerUrl,
     authorization_endpoint: `${config.baseUrl}/authorize`,
+    token_endpoint: `${config.baseUrl}/token`,
+
     jwks_uri: `${config.baseUrl}/.well-known/jwks.json`,
 
     grant_types_supported: [
