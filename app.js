@@ -44,25 +44,19 @@ app.use((req, res, next) => {
   const query = req.query && Object.keys(req.query).length > 0 ? ` ?${JSON.stringify(req.query).substring(0, 40)}` : '';
   
   const ip = req.ip || req.connection.remoteAddress;
-  console.log(`📨 [${timestamp}] ${method} ${pathDisplay}${query} - IP: ${ip}`);
-  
+  console.log(`📨 [${timestamp}] ${method} ${pathDisplay}${query} - IP: ${ip} - HTTP Status: ${res.statusCode}`);
   
   next();
 });
-app.use('/.well-known', express.static(path.join(__dirname, 'public/.well-known'), {
-  setHeaders: (res, path) => {
-      res.setHeader('Content-Type', 'application/json');
-  }
-}));
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-/*
+
 // Routes Well-Known (OpenID4VC, OpenID4VP, OAuth2)
 const createWellKnownRoutes = require('./routes/wellKnown');
 const wellKnownRoutes = createWellKnownRoutes(keyManager);
 app.use('/', wellKnownRoutes);
-*/
+/**/
 // Routes OpenID4VC avec signature JWT
 app.use('/', openid4vcRouter.getRouter());
 
