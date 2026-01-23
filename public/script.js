@@ -17,12 +17,14 @@ async function emitCustomCredential() {
       },
       body: JSON.stringify({
         credential_type: 'custom_credential',
-        subject: 'user123',
-        customData: 'Mon données personnalisées'
+        subject: 'user:demo@example.com',
+        customData: 'Données personnalisées EIDAS',
+        department: 'Engineering',
+        role: 'Developer'
       })
     });
     const data = await response.json();
-    displayResponse(data, 'POST /credential (Custom)');
+    displayResponse(data, 'POST /credential (Custom Credential - JWT signé)');
   } catch (error) {
     displayError(error.message);
   }
@@ -37,15 +39,67 @@ async function emitPID() {
       },
       body: JSON.stringify({
         credential_type: 'eu.europa.ec.eudi.pid.1',
-        subject: 'user123',
+        subject: 'user:fr/person123',
         family_name: 'Dupont',
         given_name: 'Jean',
         birth_date: '1990-01-15',
-        age_over_18: true
+        age_over_18: true,
+        age_over_21: true,
+        nationality: 'FR'
       })
     });
     const data = await response.json();
-    displayResponse(data, 'POST /credential (PID)');
+    displayResponse(data, 'POST /credential (PID EIDAS - JWT signé)');
+  } catch (error) {
+    displayError(error.message);
+  }
+}
+
+async function emitBatchCredentials() {
+  try {
+    const response = await fetch('/batch_credential', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        credentials: [
+          {
+            credential_type: 'custom_credential',
+            subject: 'user1',
+            customData: 'Credential 1'
+          },
+          {
+            credential_type: 'custom_credential',
+            subject: 'user2',
+            customData: 'Credential 2'
+          }
+        ]
+      })
+    });
+    const data = await response.json();
+    displayResponse(data, 'POST /batch_credential (Émission multiple)');
+  } catch (error) {
+    displayError(error.message);
+  }
+}
+
+async function verifyCredential() {
+  const credentialToken = prompt('Entrez le JWT du credential à vérifier:');
+  if (!credentialToken) return;
+
+  try {
+    const response = await fetch('/verify_credential', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        credential: credentialToken
+      })
+    });
+    const data = await response.json();
+    displayResponse(data, 'POST /verify_credential (Vérification JWT)');
   } catch (error) {
     displayError(error.message);
   }
@@ -68,7 +122,7 @@ async function requestPresentation() {
       })
     });
     const data = await response.json();
-    displayResponse(data, 'POST /request_object');
+    displayResponse(data, 'POST /request_object (Demande de présentation)');
   } catch (error) {
     displayError(error.message);
   }
@@ -76,6 +130,18 @@ async function requestPresentation() {
 
 function displayResponse(data, title) {
   const responseEl = document.getElementById('response');
+  
+  // Si c'est un credential JWT, le formater joliment
+  if (data.credential && typeof data.credential === 'string') {
+    const parts = data.credential.split('.');
+    if (parts.length === 3) {
+      try {
+        const payload = JSON.parse(atob(parts[1]));
+        data.credential_decoded = payload;
+      } catch (e) {}
+    }
+  }
+
   responseEl.textContent = title + '\n\n' + JSON.stringify(data, null, 2);
   responseEl.style.color = '#00ff00';
 }

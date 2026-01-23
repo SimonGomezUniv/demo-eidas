@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EIDAS OpenID4VC - Émission de Credentials</title>
+  <link rel="stylesheet" href="issuance.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header class="header">
+      <div class="header-content">
+        <h1>🔐 EIDAS Credential Issuance</h1>
+        <p>Cinématique OpenID4VC avec QR Code</p>
+      </div>
+      <nav class="nav">
+        <a href="/" class="nav-link">← Retour à l'accueil</a>
+      </nav>
+    </header>
+
+    <main class="main-content">
+      <!-- Section 1: Configuration du credential -->
+      <section class="section configuration-section">
+        <div class="section-header">
+          <h2>📋 Configurer le Credential</h2>
+          <p>Choisissez le type et les données du credential à émettre</p>
+        </div>
+
+        <div class="form-container">
+          <!-- Sélection du type -->
+          <div class="form-group">
+            <label for="credentialType">Type de Credential:</label>
+            <select id="credentialType" onchange="updateCredentialForm()">
+              <option value="custom_credential">Custom Credential</option>
+              <option value="eu.europa.ec.eudi.pid.1">EIDAS PID (Person ID)</option>
+            </select>
+          </div>
+
+          <!-- Formulaire personnalisé (Custom) -->
+          <div id="customForm" class="credential-form">
+            <div class="form-group">
+              <label for="customData">Données personnalisées:</label>
+              <input type="text" id="customData" placeholder="Ex: Mon identité numérique" value="Credential EIDAS démo">
+            </div>
+            <div class="form-group">
+              <label for="department">Département:</label>
+              <input type="text" id="department" placeholder="Ex: Engineering" value="IT">
+            </div>
+            <div class="form-group">
+              <label for="role">Rôle:</label>
+              <input type="text" id="role" placeholder="Ex: Developer" value="Administrator">
+            </div>
+          </div>
+
+          <!-- Formulaire PID (EIDAS) -->
+          <div id="pidForm" class="credential-form" style="display: none;">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="familyName">Nom:</label>
+                <input type="text" id="familyName" placeholder="Ex: Dupont" value="Martin">
+              </div>
+              <div class="form-group">
+                <label for="givenName">Prénom:</label>
+                <input type="text" id="givenName" placeholder="Ex: Jean" value="Alice">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="birthDate">Date de naissance:</label>
+              <input type="date" id="birthDate" value="1990-01-15">
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="nationality">Nationalité:</label>
+                <input type="text" id="nationality" placeholder="FR" value="FR" maxlength="2">
+              </div>
+              <div class="form-group">
+                <label>
+                  <input type="checkbox" id="ageOver18" checked>
+                  Age >= 18 ans
+                </label>
+              </div>
+              <div class="form-group">
+                <label>
+                  <input type="checkbox" id="ageOver21">
+                  Age >= 21 ans
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bouton d'initiation -->
+          <div class="form-group button-group">
+            <button class="btn btn-primary" onclick="initiateIssuance()">
+              Initier l'émission →
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 2: QR Code et statut -->
+      <section class="section issuance-section" id="issuanceSection" style="display: none;">
+        <div class="section-header">
+          <h2>📱 Scanner avec votre Wallet</h2>
+          <p>Scannez le QR code avec votre application wallet EIDAS</p>
+        </div>
+
+        <div class="issuance-container">
+          <!-- QR Code -->
+          <div class="qr-container">
+            <div class="qr-box">
+              <img id="qrCode" src="" alt="QR Code" class="qr-image">
+            </div>
+            <p class="qr-subtitle">Session ID: <code id="sessionId"></code></p>
+          </div>
+
+          <!-- Statut et informations -->
+          <div class="status-container">
+            <h3>Statut de l'émission</h3>
+            
+            <div class="status-info">
+              <div class="info-row">
+                <span class="label">Type de credential:</span>
+                <span class="value" id="statusCredentialType"></span>
+              </div>
+              <div class="info-row">
+                <span class="label">Issuer:</span>
+                <span class="value" id="statusIssuer"></span>
+              </div>
+              <div class="info-row">
+                <span class="label">Statut:</span>
+                <span class="value status-badge" id="statusBadge">Initié</span>
+              </div>
+              <div class="info-row">
+                <span class="label">Expiration:</span>
+                <span class="value" id="statusExpiry"></span>
+              </div>
+            </div>
+
+            <!-- Simulation de scannage -->
+            <div class="simulation-section">
+              <h4>🧪 Simulation (sans wallet)</h4>
+              <p>Cliquez sur le bouton ci-dessous pour simuler le scannage du QR code par un wallet</p>
+              <button class="btn btn-secondary" onclick="simulateScan()">
+                Simuler le scannage du wallet
+              </button>
+            </div>
+
+            <!-- Affichage du credential -->
+            <div id="credentialSection" style="display: none;">
+              <h4>✅ Credential émis!</h4>
+              <div class="credential-display">
+                <p class="credential-label">JWT Token:</p>
+                <code id="credentialToken" class="credential-code"></code>
+                <button class="btn btn-copy" onclick="copyCredential()">Copier</button>
+              </div>
+
+              <!-- Affichage du payload décodé -->
+              <div class="payload-section">
+                <h5>Payload (décodé):</h5>
+                <pre id="credentialPayload"></pre>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bouton de réinitialisation -->
+        <div class="button-group">
+          <button class="btn btn-outline" onclick="resetForm()">
+            ← Nouvel émission
+          </button>
+        </div>
+      </section>
+
+      <!-- Section 3: Informations d'intégration -->
+      <section class="section info-section">
+        <div class="section-header">
+          <h2>📚 Intégration avec le Wallet</h2>
+          <p>Points d'intégration pour votre application wallet EIDAS</p>
+        </div>
+
+        <div class="info-grid">
+          <div class="info-card">
+            <h4>Well-Known Discovery</h4>
+            <p>Découvrir les capacités du serveur:</p>
+            <code class="info-code">/.well-known/openid-credential-issuer</code>
+          </div>
+
+          <div class="info-card">
+            <h4>Authorization Endpoint</h4>
+            <p>Initier l'authentification:</p>
+            <code class="info-code">/authorize</code>
+          </div>
+
+          <div class="info-card">
+            <h4>Credential Endpoint</h4>
+            <p>Recevoir le credential signé:</p>
+            <code class="info-code">POST /credential</code>
+          </div>
+
+          <div class="info-card">
+            <h4>JWKS Endpoint</h4>
+            <p>Valider les signatures:</p>
+            <code class="info-code">/.well-known/jwks.json</code>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <p>EIDAS Digital Wallet - OpenID4VC Implementation</p>
+      <p style="font-size: 12px; color: #999;">© 2026 EIDAS Initiative</p>
+    </footer>
+  </div>
+
+  <script src="issuance.js"></script>
+</body>
+</html>

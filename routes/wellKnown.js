@@ -3,6 +3,25 @@ const router = express.Router();
 const config = require('../config');
 
 /**
+ * Middleware pour injecter le keyManager
+ */
+function attachKeyManager(keyManager) {
+  return (req, res, next) => {
+    req.keyManager = keyManager;
+    next();
+  };
+}
+
+/**
+ * Crée les routes well-known avec le keyManager
+ */
+function createWellKnownRoutes(keyManager) {
+  const router = express.Router();
+
+  // Ajouter le middleware
+  router.use(attachKeyManager(keyManager));
+
+/**
  * Well-Known Configuration for OpenID4VC
  * Conform to: https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html
  */
@@ -181,20 +200,11 @@ router.get('/.well-known/oauth-authorization-server', (req, res) => {
  * Used for verifying signatures
  */
 router.get('/.well-known/jwks.json', (req, res) => {
-  const jwksConfig = {
-    keys: [
-      {
-        kty: 'RSA',
-        use: 'sig',
-        kid: 'key-1',
-        n: 'xGOr-H0A-6_BOXMq83kU...',
-        e: 'AQAB',
-        alg: 'RS256'
-      }
-    ]
-  };
-
+  const jwksConfig = req.keyManager.getJWKSConfig();
   res.json(jwksConfig);
 });
 
-module.exports = router;
+  return router;
+}
+
+module.exports = createWellKnownRoutes;

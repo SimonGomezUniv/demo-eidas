@@ -11,6 +11,19 @@
     <h1>🔐 EIDAS OpenID4VC/VP Server</h1>
     <p>Serveur d'émission et vérification de credentials OpenID4</p>
 
+    <!-- Navigation rapide -->
+    <nav class="quick-nav">
+      <a href="/issuance.html" class="nav-btn nav-btn-primary">
+        📱 Cinématique d'Émission
+      </a>
+      <a href="/verification.html" class="nav-btn nav-btn-primary">
+        ✔️ Vérification OpenID4VP
+      </a>
+      <a href="#endpoints" class="nav-btn nav-btn-secondary">
+        🔍 Tests API
+      </a>
+    </nav>
+
     <section class="endpoints">
       <h2>📡 Endpoints Well-Known</h2>
       <div class="endpoint-grid">
@@ -44,22 +57,38 @@
       <h2>⚙️ Opérations</h2>
       <div class="ops-grid">
         <div class="op-card">
-          <h3>Émettre Custom Credential</h3>
+          <h3>🔐 Émettre Custom Credential</h3>
+          <p style="font-size: 12px; color: #999;">JWT signé RS256</p>
           <button onclick="emitCustomCredential()">Émettre</button>
         </div>
 
         <div class="op-card">
-          <h3>Émettre PID</h3>
+          <h3>🎫 Émettre PID EIDAS</h3>
+          <p style="font-size: 12px; color: #999;">Person Identification Data signé</p>
           <button onclick="emitPID()">Émettre</button>
         </div>
 
         <div class="op-card">
-          <h3>Demander Présentation</h3>
+          <h3>📦 Émission Batch</h3>
+          <p style="font-size: 12px; color: #999;">Plusieurs credentials</p>
+          <button onclick="emitBatchCredentials()">Émettre</button>
+        </div>
+
+        <div class="op-card">
+          <h3>✅ Vérifier Credential</h3>
+          <p style="font-size: 12px; color: #999;">Valider une signature JWT</p>
+          <button onclick="verifyCredential()">Vérifier</button>
+        </div>
+
+        <div class="op-card">
+          <h3>🔍 Demander Présentation</h3>
+          <p style="font-size: 12px; color: #999;">Créer un challenge OpenID4VP</p>
           <button onclick="requestPresentation()">Demander</button>
         </div>
 
         <div class="op-card">
-          <h3>Santé du serveur</h3>
+          <h3>💚 Santé du serveur</h3>
+          <p style="font-size: 12px; color: #999;">Status du serveur</p>
           <button onclick="testEndpoint('/api/health')">Vérifier</button>
         </div>
       </div>
