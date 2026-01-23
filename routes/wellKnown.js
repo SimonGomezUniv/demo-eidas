@@ -167,6 +167,36 @@ router.get('/.well-known/oauth-authorization-server', (req, res) => {
   res.json(authServerConfig);
 });
 
+/**
+ * OpenID Connect Well-Known Configuration
+ * Required by wallets during discovery, even for pre-authorized flows
+ */
+router.get('/.well-known/openid-configuration', (req, res) => {
+  const oidcConfig = {
+    issuer: config.issuerUrl,
+
+    authorization_endpoint: `${config.baseUrl}/authorize`,
+    token_endpoint: `${config.baseUrl}/token`,
+    jwks_uri: `${config.baseUrl}/.well-known/jwks.json`,
+
+    response_types_supported: ['code'],
+    subject_types_supported: ['public'],
+    id_token_signing_alg_values_supported: ['ES256'],
+
+    grant_types_supported: [
+      'authorization_code',
+      'urn:ietf:params:oauth:grant-type:pre-authorized_code'
+    ],
+
+    code_challenge_methods_supported: ['S256'],
+    token_endpoint_auth_methods_supported: ['none'],
+
+    dpop_signing_alg_values_supported: ['ES256']
+  };
+
+  res.json(oidcConfig);
+});
+
 
 /**
  * JWKS (JSON Web Key Set) endpoint
