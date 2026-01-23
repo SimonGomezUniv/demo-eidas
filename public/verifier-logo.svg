@@ -1,0 +1,26 @@
+<svg width="200" height="200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Fond blanc -->
+  <rect width="200" height="200" fill="white"/>
+  
+  <!-- Cercle de fond dégradé (Verifier) -->
+  <defs>
+    <radialGradient id="grad3" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#ee5a6f;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#d63447;stop-opacity:1" />
+    </radialGradient>
+  </defs>
+  
+  <circle cx="100" cy="100" r="95" fill="url(#grad3)"/>
+  
+  <!-- Loupe (verifier/vérificateur) -->
+  <circle cx="85" cy="95" r="28" stroke="white" stroke-width="8" fill="none"/>
+  
+  <!-- Manche de la loupe -->
+  <line x1="110" y1="120" x2="135" y2="145" stroke="white" stroke-width="8" stroke-linecap="round"/>
+  
+  <!-- Loupe interne -->
+  <circle cx="85" cy="95" r="22" stroke="none" fill="none"/>
+  
+  <!-- Text -->
+  <text x="100" y="175" font-family="Arial" font-size="14" font-weight="bold" fill="white" text-anchor="middle">VERIFIER</text>
+</svg>

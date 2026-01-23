@@ -1,0 +1,24 @@
+<svg width="200" height="200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Fond blanc -->
+  <rect width="200" height="200" fill="white"/>
+  
+  <!-- Cercle de fond dégradé (Custom Credential) -->
+  <defs>
+    <radialGradient id="grad1" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+    </radialGradient>
+  </defs>
+  
+  <circle cx="100" cy="100" r="95" fill="url(#grad1)"/>
+  
+  <!-- Cadenas (symbole de credential) -->
+  <rect x="80" y="90" width="40" height="50" fill="white"/>
+  <path d="M 85 90 Q 85 75 100 75 Q 115 75 115 90" stroke="white" stroke-width="3" fill="none" stroke-linecap="round"/>
+  
+  <!-- Trou du cadenas -->
+  <rect x="95" y="110" width="10" height="20" fill="#667eea"/>
+  
+  <!-- Text -->
+  <text x="100" y="170" font-family="Arial" font-size="16" font-weight="bold" fill="white" text-anchor="middle">CREDENTIAL</text>
+</svg>

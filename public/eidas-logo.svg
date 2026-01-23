@@ -1,0 +1,20 @@
+<svg width="200" height="200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Fond blanc -->
+  <rect width="200" height="200" fill="white"/>
+  
+  <!-- Fond de la carte d'identité -->
+  <rect x="40" y="50" width="120" height="100" fill="#1a5490" rx="5"/>
+  
+  <!-- Bande or (EIDAS) -->
+  <rect x="40" y="50" width="120" height="15" fill="#ffd700" rx="5"/>
+  
+  <!-- Cercle pour la photo -->
+  <circle cx="100" cy="90" r="25" fill="#e8e8e8" stroke="#1a5490" stroke-width="2"/>
+  
+  <!-- Lignes de texte -->
+  <line x1="50" y1="130" x2="150" y2="130" stroke="#ffd700" stroke-width="1"/>
+  <line x1="50" y1="140" x2="130" y2="140" stroke="#ffd700" stroke-width="1"/>
+  
+  <!-- Text -->
+  <text x="100" y="165" font-family="Arial" font-size="14" font-weight="bold" fill="#1a5490" text-anchor="middle">EIDAS PID</text>
+</svg>

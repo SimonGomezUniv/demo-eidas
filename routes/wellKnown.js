@@ -59,7 +59,7 @@ router.get('/.well-known/openid-credential-issuer', (req, res) => {
             name: 'Custom Credential',
             locale: 'en-US',
             logo: {
-              url: `${config.baseUrl}/logo.png`,
+              url: `${config.baseUrl}/logo.svg`,
               alt_text: 'Custom Credential Logo'
             }
           }
@@ -90,7 +90,7 @@ router.get('/.well-known/openid-credential-issuer', (req, res) => {
             name: 'Person Identification Data',
             locale: 'en-US',
             logo: {
-              url: `${config.baseUrl}/eidas-logo.png`,
+              url: `${config.baseUrl}/eidas-logo.svg`,
               alt_text: 'EIDAS PID Logo'
             }
           }
@@ -104,7 +104,7 @@ router.get('/.well-known/openid-credential-issuer', (req, res) => {
         name: 'EIDAS Credential Issuer',
         locale: 'en-US',
         logo: {
-          url: `${config.baseUrl}/issuer-logo.png`,
+          url: `${config.baseUrl}/issuer-logo.svg`,
           alt_text: 'EIDAS Issuer Logo'
         }
       }
