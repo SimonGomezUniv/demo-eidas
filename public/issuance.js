@@ -92,9 +92,9 @@ function displayIssuanceUI(data) {
   document.getElementById('statusIssuer').textContent = data.issuer;
   document.getElementById('statusExpiry').textContent = `${data.expires_in} secondes`;
   
-  // Afficher l'URL du wallet
-  if (data.wallet_url) {
-    document.getElementById('walletUrl').textContent = data.wallet_url;
+  // Afficher l'URL complète d'initialisation OpenID4VC (qr_content)
+  if (data.qr_content) {
+    document.getElementById('walletUrl').textContent = data.qr_content;
   }
 
   // Scroller vers la section d'émission
