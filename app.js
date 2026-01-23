@@ -123,11 +123,30 @@ app.get('/authorize', (req, res) => {
 // Token endpoint
 app.post('/token', (req, res) => {
   try {
+    const timestamp = new Date().toLocaleString('fr-FR', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      millisecond: '3-digit'
+    });
+    
     const { grant_type, code, pre_authorized_code, redirect_uri, client_id, code_verifier, user_pin } = req.body;
+    
+    console.log(`\n🔑 [${timestamp}] /token endpoint called`);
+    console.log(`   • grant_type: ${grant_type}`);
+    console.log(`   • client_id: ${client_id || 'N/A'}`);
+    console.log(`   • code: ${code ? code.substring(0, 8) + '...' : 'N/A'}`);
+    console.log(`   • pre_authorized_code: ${pre_authorized_code ? pre_authorized_code.substring(0, 8) + '...' : 'N/A'}`);
 
     // Support du pre-authorized_code (OpenID4VCI)
     if (grant_type === 'urn:ietf:params:oauth:grant-type:pre-authorized_code') {
+      console.log(`   ✓ Pre-authorized code flow detected`);
+      
       if (!pre_authorized_code) {
+        console.log(`   ❌ pre-authorized_code is missing`);
         return res.status(400).json({
           error: 'invalid_request',
           error_description: 'pre-authorized_code is required'
@@ -138,14 +157,18 @@ app.post('/token', (req, res) => {
       const { emissionSessions } = require('./routes/openid4vcIssuance');
       let sessionFound = null;
       
+      console.log(`   • Searching for session with pre-authorized_code in ${emissionSessions.size} sessions`);
+      
       for (const [sessionId, session] of emissionSessions.entries()) {
         if (session.pre_authorized_code === pre_authorized_code) {
           sessionFound = session;
+          console.log(`   ✓ Session found: ${sessionId}`);
           break;
         }
       }
 
       if (!sessionFound) {
+        console.log(`   ❌ Session not found for pre-authorized_code`);
         return res.status(400).json({
           error: 'invalid_grant',
           error_description: 'pre-authorized_code is invalid or expired'
@@ -153,7 +176,18 @@ app.post('/token', (req, res) => {
       }
 
       // Vérifier l'expiration
+      const expirationTime = new Date(sessionFound.expires_at).toLocaleString('fr-FR', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      });
+      console.log(`   • Session expires_at: ${expirationTime}`);
+      
       if (new Date() > sessionFound.expires_at) {
+        console.log(`   ❌ Session has expired`);
         return res.status(400).json({
           error: 'invalid_grant',
           error_description: 'pre-authorized_code has expired'
@@ -163,6 +197,10 @@ app.post('/token', (req, res) => {
       // Générer un access token
       const accessToken = require('crypto').randomBytes(32).toString('hex');
       const cNonce = require('crypto').randomBytes(16).toString('hex');
+      
+      console.log(`   ✓ Access token generated: ${accessToken.substring(0, 8)}...`);
+      console.log(`   ✓ c_nonce generated: ${cNonce.substring(0, 8)}...`);
+      console.log(`   ✅ Token endpoint successful - returning access token\n`);
       
       return res.json({
         access_token: accessToken,
@@ -175,14 +213,18 @@ app.post('/token', (req, res) => {
 
     // Support du authorization_code standard
     if (grant_type !== 'authorization_code') {
+      console.log(`   ❌ Unsupported grant type: ${grant_type}`);
       return res.status(400).json({
         error: 'unsupported_grant_type',
         error_description: `Grant type '${grant_type}' is not supported`
       });
     }
 
+    console.log(`   ✓ Authorization code flow detected`);
+    
     // Validate authorization code
     if (!authorizationCodes.has(code)) {
+      console.log(`   ❌ Authorization code not found`);
       return res.status(400).json({
         error: 'invalid_grant',
         error_description: 'Authorization code is invalid or expired'
@@ -194,6 +236,7 @@ app.post('/token', (req, res) => {
     // Check if code is not expired (10 minutes)
     if (Date.now() - authCode.created_at > 600000) {
       authorizationCodes.delete(code);
+      console.log(`   ❌ Authorization code has expired`);
       return res.status(400).json({
         error: 'invalid_grant',
         error_description: 'Authorization code has expired'
@@ -202,6 +245,9 @@ app.post('/token', (req, res) => {
 
     // Generate access token (simple JWT)
     const accessToken = require('crypto').randomBytes(32).toString('hex');
+    
+    console.log(`   ✓ Access token generated: ${accessToken.substring(0, 8)}...`);
+    console.log(`   ✅ Token endpoint successful - returning access token\n`);
     
     res.json({
       access_token: accessToken,
