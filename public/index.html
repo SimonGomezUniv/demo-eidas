@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EIDAS OpenID4VC/VP Server</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>🔐 EIDAS OpenID4VC/VP Server</h1>
+    <p>Serveur d'émission et vérification de credentials OpenID4</p>
+
+    <section class="endpoints">
+      <h2>📡 Endpoints Well-Known</h2>
+      <div class="endpoint-grid">
+        <div class="endpoint-card">
+          <h3>OpenID4VC Issuer</h3>
+          <code>/.well-known/openid-credential-issuer</code>
+          <button onclick="testEndpoint('/.well-known/openid-credential-issuer')">Tester</button>
+        </div>
+
+        <div class="endpoint-card">
+          <h3>OpenID4VP Verifier</h3>
+          <code>/.well-known/openid-verifier</code>
+          <button onclick="testEndpoint('/.well-known/openid-verifier')">Tester</button>
+        </div>
+
+        <div class="endpoint-card">
+          <h3>OAuth2 Server</h3>
+          <code>/.well-known/oauth-authorization-server</code>
+          <button onclick="testEndpoint('/.well-known/oauth-authorization-server')">Tester</button>
+        </div>
+
+        <div class="endpoint-card">
+          <h3>JWKS</h3>
+          <code>/.well-known/jwks.json</code>
+          <button onclick="testEndpoint('/.well-known/jwks.json')">Tester</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="operations">
+      <h2>⚙️ Opérations</h2>
+      <div class="ops-grid">
+        <div class="op-card">
+          <h3>Émettre Custom Credential</h3>
+          <button onclick="emitCustomCredential()">Émettre</button>
+        </div>
+
+        <div class="op-card">
+          <h3>Émettre PID</h3>
+          <button onclick="emitPID()">Émettre</button>
+        </div>
+
+        <div class="op-card">
+          <h3>Demander Présentation</h3>
+          <button onclick="requestPresentation()">Demander</button>
+        </div>
+
+        <div class="op-card">
+          <h3>Santé du serveur</h3>
+          <button onclick="testEndpoint('/api/health')">Vérifier</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="response">
+      <h2>📊 Réponse</h2>
+      <pre id="response">Cliquez sur un bouton pour voir la réponse...</pre>
+    </section>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
