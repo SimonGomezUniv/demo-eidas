@@ -40,8 +40,8 @@ router.get('/.well-known/openid-credential-issuer', (req, res) => {
         vct:"urn:my:custom:credential:type",
         format: 'dc+sd-jwt',
         claims: {
-              "given_name": { "mandatory": true },
-              "family_name": { "mandatory": false }
+              "id": { "mandatory": true },
+              "customData": { "mandatory": false }
             },
         cryptographic_binding_methods_supported: ['jwk'],
         credential_signing_alg_values_supported: ['ES256'],
