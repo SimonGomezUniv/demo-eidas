@@ -22,8 +22,14 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // ============ Logging Middleware ============
+// ============ Logging Middleware ============
 // Log toutes les requêtes
 app.use((req, res, next) => {
+  // Ignorer le polling de session (trop de bruit dans les logs)
+  if (req.path.includes('/issuance/session/')) {
+    return next();
+  }
+
   const timestamp = new Date().toLocaleString('fr-FR', {
     year: 'numeric',
     month: '2-digit',
