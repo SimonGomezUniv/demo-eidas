@@ -93,20 +93,108 @@ const issuanceRouter = new OpenID4VCIssuanceRouter(openid4vcRouter.signer);
 app.use('/', issuanceRouter.getRouter());
 
 // ============ Routes OpenID4VC additionnelles ============
+// State storage for authorization flow
+const authorizationStates = new Map();
+const authorizationCodes = new Map();
+
 // Authorization endpoint
 app.get('/authorize', (req, res) => {
-  res.json({ 
-    message: 'Authorization endpoint',
-    params: req.query
-  });
+  try {
+    const { client_id, redirect_uri, scope, state, response_type, nonce, code_challenge, code_challenge_method } = req.query;
+    
+    // Validate required parameters
+    if (!client_id || !redirect_uri || !state || !response_type) {
+      return res.status(400).json({ 
+        error: 'invalid_request',
+        error_description: 'Missing required parameters: client_id, redirect_uri, state, response_type'
+      });
+    }
+
+    // Store authorization parameters
+    const authCode = require('crypto').randomBytes(16).toString('hex');
+    authorizationStates.set(state, {
+      client_id,
+      redirect_uri,
+      scope: scope || 'openid',
+      nonce,
+      code_challenge,
+      code_challenge_method,
+      created_at: Date.now()
+    });
+    
+    authorizationCodes.set(authCode, {
+      client_id,
+      scope: scope || 'openid',
+      nonce,
+      created_at: Date.now()
+    });
+
+    // Redirect to redirect_uri with code and state
+    const redirectUrl = new URL(redirect_uri);
+    redirectUrl.searchParams.append('code', authCode);
+    redirectUrl.searchParams.append('state', state);
+    
+    res.redirect(redirectUrl.toString());
+  } catch (error) {
+    console.error('❌ Authorize error:', error);
+    res.status(500).json({
+      error: 'server_error',
+      error_description: error.message
+    });
+  }
 });
 
 // Token endpoint
 app.post('/token', (req, res) => {
-  res.json({ 
-    message: 'Token endpoint',
-    body: req.body
-  });
+  try {
+    const { grant_type, code, redirect_uri, client_id, code_verifier } = req.body;
+
+    if (grant_type !== 'authorization_code') {
+      return res.status(400).json({
+        error: 'unsupported_grant_type',
+        error_description: `Grant type '${grant_type}' is not supported`
+      });
+    }
+
+    // Validate authorization code
+    if (!authorizationCodes.has(code)) {
+      return res.status(400).json({
+        error: 'invalid_grant',
+        error_description: 'Authorization code is invalid or expired'
+      });
+    }
+
+    const authCode = authorizationCodes.get(code);
+    
+    // Check if code is not expired (10 minutes)
+    if (Date.now() - authCode.created_at > 600000) {
+      authorizationCodes.delete(code);
+      return res.status(400).json({
+        error: 'invalid_grant',
+        error_description: 'Authorization code has expired'
+      });
+    }
+
+    // Generate access token (simple JWT)
+    const accessToken = require('crypto').randomBytes(32).toString('hex');
+    
+    res.json({
+      access_token: accessToken,
+      token_type: 'Bearer',
+      expires_in: 3600,
+      scope: authCode.scope,
+      ...(authCode.nonce && { id_token: accessToken })
+    });
+
+    // Clean up
+    authorizationCodes.delete(code);
+  } catch (error) {
+    console.error('❌ Token error:', error);
+    res.status(500).json({
+      error: 'server_error',
+      error_description: error.message
+    });
+  }
 });
 
 // ============ Routes OpenID4VP ============
