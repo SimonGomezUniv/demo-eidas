@@ -22,27 +22,27 @@ class OpenID4VCIssuanceRouter {
         const {
           credential_type = 'custom_credential',
           credential_data = {},
-          wallet_url = config.walletUrl,
         } = req.body;
 
         // Générer un ID de session unique
         const sessionId = uuidv4();
         const state = uuidv4();
 
-        // URL du credential endpoint
-        const credentialEndpoint = `${config.baseUrl}/credential`;
+        // Utiliser la WALLET_URL depuis la config (celle du .env)
+        const walletUrl = config.walletUrl;
 
-        // Préparer l'URL de l'authorization request
-        const authorizationParams = {
-          client_id: config.issuerUrl,
-          response_type: 'code',
-          scope: credential_type,
+        // URL de la credential offer (endpoint que la wallet va appeler)
+        const credentialOfferUri = `${config.baseUrl}/offer/${sessionId}`;
+
+        // Préparer la credential offer (ce que le wallet va récupérer)
+        const credentialOffer = {
+          credential_issuer: config.issuerUrl,
+          credentials: [credential_type],
           state: state,
-          redirect_uri: `${config.baseUrl}/issuance/callback`,
-          issuer: config.issuerUrl,
+          // Paramètres pour le wallet
+          grant_types_supported: ['authorization_code'],
+          authorization_server: config.issuerUrl,
         };
-
-        const authUrl = `${wallet_url}/authorize?${new URLSearchParams(authorizationParams).toString()}`;
 
         // Stocker la session
         emissionSessions.set(sessionId, {
@@ -50,31 +50,70 @@ class OpenID4VCIssuanceRouter {
           state,
           credential_type,
           credential_data,
-          auth_url: authUrl,
+          credential_offer: credentialOffer,
+          wallet_url: walletUrl,
           created_at: new Date(),
           expires_at: new Date(Date.now() + 10 * 60 * 1000), // 10 minutes
           status: 'pending'
         });
 
-        // Générer le QR code
-        const qrCodeUrl = await QRCode.toDataURL(authUrl);
+        // Générer le contenu du QR code : credential_offer_uri
+        // Format OpenID4VC : openid-credential://?credential_offer_uri=...
+        // Ou format URI standard : https://wallet.url/?credential_offer_uri=...
+        const qrContent = `${walletUrl}?credential_offer_uri=${encodeURIComponent(credentialOfferUri)}`;
+
+        // Générer le QR code avec le contenu correct
+        const qrCodeUrl = await QRCode.toDataURL(qrContent);
 
         res.json({
           session_id: sessionId,
           status: 'initiated',
-          auth_url: authUrl,
+          qr_content: qrContent,
           qr_code: qrCodeUrl,
           credential_type,
           issuer: config.issuerUrl,
-          wallet_url: wallet_url,
-          authorization_endpoint: `${config.baseUrl}/authorize`,
-          credential_endpoint: credentialEndpoint,
+          wallet_url: walletUrl,
+          credential_offer_uri: credentialOfferUri,
           expires_in: 600, // 10 minutes
         });
       } catch (error) {
         console.error('❌ Erreur lors de l\'initiation de l\'émission:', error);
         res.status(500).json({
           error: 'issuance_initiation_failed',
+          error_description: error.message,
+        });
+      }
+    });
+
+    // Endpoint pour récupérer la credential offer
+    // Conforme à OpenID4VC spec
+    router.get('/offer/:sessionId', (req, res) => {
+      try {
+        const { sessionId } = req.params;
+        const session = emissionSessions.get(sessionId);
+
+        if (!session) {
+          return res.status(404).json({
+            error: 'offer_not_found',
+            error_description: `Credential offer ${sessionId} not found or expired`,
+          });
+        }
+
+        // Vérifier que la session n'a pas expiré
+        if (new Date() > session.expires_at) {
+          emissionSessions.delete(sessionId);
+          return res.status(410).json({
+            error: 'offer_expired',
+            error_description: 'Credential offer has expired',
+          });
+        }
+
+        // Retourner la credential offer
+        res.json(session.credential_offer);
+      } catch (error) {
+        console.error('❌ Erreur lors de la récupération de l\'offre:', error);
+        res.status(500).json({
+          error: 'offer_retrieval_failed',
           error_description: error.message,
         });
       }
