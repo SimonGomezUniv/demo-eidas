@@ -10,10 +10,12 @@ const config = require('./config');
 const KeyManager = require('./lib/keyManager');
 const OpenID4VCRouter = require('./routes/openid4vc');
 const OpenID4VPRouter = require('./routes/openid4vp');
+const OpenID4VPVerificationRouter = require('./routes/openid4vpVerification');
 
 const keyManager = new KeyManager();
 const openid4vcRouter = new OpenID4VCRouter(keyManager);
 const openid4vpRouter = new OpenID4VPRouter(keyManager);
+const openid4vpVerificationRouter = new OpenID4VPVerificationRouter(openid4vcRouter.signer);
 
 // Middleware
 app.use(cors());
@@ -67,6 +69,9 @@ app.use('/', openid4vpRouter.getRouter());
 const OpenID4VCIssuanceRouter = require('./routes/openid4vcIssuance');
 const issuanceRouter = new OpenID4VCIssuanceRouter(openid4vcRouter.signer);
 app.use('/', issuanceRouter.getRouter());
+
+// Routes OpenID4VP Verification avec QR code
+app.use('/', openid4vpVerificationRouter.getRouter());
 
 // ============ Routes OpenID4VC additionnelles ============
 // State storage for authorization flow
