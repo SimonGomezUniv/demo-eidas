@@ -37,6 +37,12 @@ class OpenID4VCRouter {
         console.log(`   • credentialData keys: ${Object.keys(credentialData).join(', ') || 'none'}`);
         console.log(`   • Full payload: ${JSON.stringify(req.body)}`);
 
+
+        if(! credential_type) {
+          credential_type = 'custom_credential';
+          console.log(`   ⚠️  No credential_type provided, defaulting to 'custom_credential'`);
+        } 
+
         // Valider le type de credential
         const supportedTypes = ['custom_credential', 'eu.europa.ec.eudi.pid.1'];
         if (!supportedTypes.includes(credential_type)) {
