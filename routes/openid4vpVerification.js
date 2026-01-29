@@ -2,6 +2,7 @@ const express = require('express');
 const QRCode = require('qrcode');
 const { v4: uuidv4 } = require('uuid');
 const config = require('../config');
+const crypto = require('crypto');
 
 // Store pour les sessions de vérification temporaires
 const verificationSessions = new Map();
@@ -12,6 +13,162 @@ const verificationSessions = new Map();
 class OpenID4VPVerificationRouter {
   constructor(credentialSigner) {
     this.signer = credentialSigner;
+  }
+
+  /**
+   * Crée une structure complète OpenID4VP presentation_request
+   * Conforme à la spec OpenID4VP
+   */
+  createPresentationRequest(sessionId, responseUri) {
+    const now = Math.floor(Date.now() / 1000);
+    const nonce = uuidv4().replace(/-/g, '').substring(0, 43) + '='; // Format nonce OpenID
+    const state = crypto.randomBytes(32).toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+
+    return {
+      response_type: 'vp_token',
+      client_id: `x509_hash:${this._getClientIdHash()}`, // Utiliser un hash X.509 pour le client ID
+      response_uri: responseUri,
+      response_mode: 'direct_post.jwt',
+      nonce: nonce,
+      dcql_query: {
+        credentials: [
+          {
+            id: '0',
+            format: 'dc+sd-jwt',
+            meta: {
+              vct_values: [
+                'https://example.eudi.ec.europa.eu/tax-id/1'
+              ]
+            },
+            claims: [
+              {
+                path: ['tax_number'],
+                id: 'tax_number'
+              },
+              {
+                path: ['affiliation_country'],
+                id: 'affiliation_country'
+              }
+            ]
+          },
+          {
+            id: '1',
+            format: 'dc+sd-jwt',
+            meta: {
+              vct_values: [
+                'https://example.eudi.ec.europa.eu/cor/1'
+              ]
+            },
+            claims: [
+              {
+                path: ['resident_address'],
+                id: 'resident_address'
+              },
+              {
+                path: ['arrival_date'],
+                id: 'arrival_date'
+              }
+            ]
+          },
+          {
+            id: '2',
+            format: 'dc+sd-jwt',
+            meta: {
+              vct_values: [
+                'eu.europa.ec.eudi.hiid.1'
+              ]
+            },
+            claims: [
+              {
+                path: ['health_insurance_id'],
+                id: 'health_insurance_id'
+              },
+              {
+                path: ['affiliation_country'],
+                id: 'affiliation_country'
+              },
+              {
+                path: ['matching_institution_id'],
+                id: 'matching_institution_id'
+              }
+            ]
+          },
+          {
+            id: '3',
+            format: 'dc+sd-jwt',
+            meta: {
+              vct_values: [
+                'urn:eudi:pid:1',
+                'https://demo.pid-issuer.bundesdruckerei.de/credentials/pid/1.0'
+              ]
+            },
+            claims: [
+              {
+                path: ['given_name'],
+                id: 'given_name'
+              },
+              {
+                path: ['family_name'],
+                id: 'family_name'
+              },
+              {
+                path: ['birthdate'],
+                id: 'birthdate'
+              },
+              {
+                path: ['address', 'country'],
+                id: 'address_country'
+              },
+              {
+                path: ['nationalities'],
+                id: 'nationalities'
+              }
+            ]
+          }
+        ],
+        credential_sets: [
+          {
+            options: [['0', '1', '2', '3']],
+            purpose: 'To open an Open Horizon Bank account, we need to verify your name, date of birth, country of residence and nationality'
+          }
+        ]
+      },
+      client_metadata: {
+        jwks: {
+          keys: [
+            this.signer.keyManager.getECPublicKeyAsJWK(),
+            this.signer.keyManager.getPublicKeyAsJWK()
+          ]
+        },
+        vp_formats_supported: {
+          'dc+sd-jwt': {
+            'sd-jwt_alg_values': ['ES256', 'ES384', 'EdDSA', 'Ed25519', 'ES256K'],
+            'kb-jwt_alg_values': ['ES256', 'ES384', 'EdDSA', 'Ed25519', 'ES256K']
+          }
+        },
+        encrypted_response_enc_values_supported: ['A128GCM', 'A256GCM', 'A128CBC-HS256'],
+        logo_uri: `${config.baseUrl}/assets/verifiers/openbank.png`,
+        client_name: 'Open Horizon Bank',
+        response_types_supported: ['vp_token']
+      },
+      state: state,
+      aud: responseUri,
+      exp: now + 600, // 10 minutes
+      iat: now
+    };
+  }
+
+  /**
+   * Génère un hash SHA-256 pour le client_id format x509_hash
+   */
+  _getClientIdHash() {
+    // Utiliser un hash déterministe basé sur la clé publique
+    const publicKeyJwk = this.signer.keyManager.getECPublicKeyAsJWK();
+    const keyString = JSON.stringify(publicKeyJwk);
+    return crypto.createHash('sha256').update(keyString).digest('base64')
+      .replace(/\+/g, '-')
+      .replace(/\//g, '_')
+      .replace(/=/g, '');
   }
 
   getRouter() {
@@ -29,58 +186,34 @@ class OpenID4VPVerificationRouter {
 
         // Générer un ID de session unique
         const sessionId = uuidv4();
-        const nonce = uuidv4();
 
         // Utiliser la WALLET_URL depuis la config (celle du .env)
         const walletUrl = config.walletUrl;
 
+        // URL de callback pour la réponse (où la wallet envoie la VP)
+        const responseUri = `${config.baseUrl}/presentation-callback?session=${sessionId}`;
+
         // URL de la présentation request (endpoint que la wallet va appeler)
         const presentationRequestUri = `${config.baseUrl}/presentation-request/${sessionId}`;
 
-        // Préparer la présentation request
-        const presentationRequest = {
-          client_id: config.baseUrl,
-          redirect_uri: `${config.baseUrl}/presentation-callback`,
-          response_type: 'vp_token id_token',
-          response_mode: 'direct_post',
-          presentation_definition: {
-            id: 'openid4vp-request',
-            input_descriptors: [
-              {
-                id: 'credential',
-                name: formatCredentialType(credential_type),
-                purpose: 'Vérification du credential',
-                format: {
-                  jwt_vc_json: {}
-                },
-                constraints: {
-                  fields: [
-                    {
-                      path: ['$.vc.type'],
-                      filter: {
-                        type: 'string',
-                        pattern: credential_type
-                      }
-                    }
-                  ]
-                }
-              }
-            ]
-          },
-          state: uuidv4(),
-          nonce: nonce,
-        };
+        // Créer la presentation request avec la structure complète OpenID4VP
+        const presentationRequest = this.createPresentationRequest(sessionId, responseUri);
+
+        // Signer le JWT
+        const signedJwt = this.signer.signPresentationRequest(presentationRequest);
 
         // Stocker la session
         verificationSessions.set(sessionId, {
           id: sessionId,
           credential_type,
           presentation_request: presentationRequest,
+          presentation_request_jwt: signedJwt,
           wallet_url: walletUrl,
           created_at: new Date(),
           expires_at: new Date(Date.now() + 10 * 60 * 1000), // 10 minutes
           status: 'pending',
-          nonce: nonce
+          nonce: presentationRequest.nonce,
+          state: presentationRequest.state
         });
 
         // Générer le contenu du QR code
@@ -111,8 +244,9 @@ class OpenID4VPVerificationRouter {
     });
 
     /**
-     * Endpoint pour récupérer la présentation request
+     * Endpoint pour récupérer la présentation request signée en JWT
      * GET /presentation-request/:sessionId
+     * Retourne un JWT signé contenant la presentation request
      */
     router.get('/presentation-request/:sessionId', (req, res) => {
       try {
@@ -135,11 +269,11 @@ class OpenID4VPVerificationRouter {
           });
         }
 
-        console.log('📋 Présentation Request retournée:');
-        console.log(JSON.stringify(session.presentation_request, null, 2));
+        console.log(`📋 [${new Date().toLocaleString('fr-FR')}] Présentation Request retournée (sessionId: ${sessionId})`);
 
-        // Retourner la présentation request
-        res.json(session.presentation_request);
+        // Retourner le JWT signé (pas JSON brut)
+        res.set('Content-Type', 'application/oauth-authz-req+jwt');
+        res.send(session.presentation_request_jwt);
       } catch (error) {
         console.error('❌ Erreur lors de la récupération de la request:', error);
         res.status(500).json({
@@ -161,7 +295,10 @@ class OpenID4VPVerificationRouter {
           state,
         } = req.body;
 
+        const sessionIdFromQuery = req.query.session;
+
         console.log(`\n🔐 [${new Date().toLocaleString('fr-FR')}] Présentation reçue`);
+        console.log(`   • Session (query): ${sessionIdFromQuery}`);
         console.log(`   • VP Token (first 50 chars): ${vp_token?.substring(0, 50)}...`);
         console.log(`   • Submission: ${JSON.stringify(presentation_submission)}`);
         console.log(`   • State: ${state}`);
@@ -173,17 +310,20 @@ class OpenID4VPVerificationRouter {
           });
         }
 
-        // Trouver la session correspondante par le state
-        let sessionId = null;
-        for (const [id, session] of verificationSessions.entries()) {
-          if (session.presentation_request.state === state) {
-            sessionId = id;
-            break;
+        // Trouver la session - d'abord par query param, puis par state
+        let sessionId = sessionIdFromQuery;
+        
+        if (!sessionId) {
+          for (const [id, session] of verificationSessions.entries()) {
+            if (session.state === state) {
+              sessionId = id;
+              break;
+            }
           }
         }
 
         if (!sessionId) {
-          console.error('❌ Session non trouvée pour le state:', state);
+          console.error('❌ Session non trouvée. Query session:', sessionIdFromQuery, 'State:', state);
           return res.status(400).json({
             error: 'invalid_state',
             error_description: 'State invalide ou session expirée',
@@ -191,6 +331,13 @@ class OpenID4VPVerificationRouter {
         }
 
         const session = verificationSessions.get(sessionId);
+
+        if (!session) {
+          return res.status(400).json({
+            error: 'session_not_found',
+            error_description: 'Session non trouvée',
+          });
+        }
 
         // Vérifier la présentation
         const verificationResult = this.signer.verifyCredential(vp_token);
@@ -335,6 +482,7 @@ class OpenID4VPVerificationRouter {
     return router;
   }
 }
+
 
 /**
  * Formater le type de credential
