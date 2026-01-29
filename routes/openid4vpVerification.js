@@ -28,7 +28,7 @@ class OpenID4VPVerificationRouter {
       response_type: 'vp_token',
       client_id: `https://smngmz.com`,
       response_uri: responseUri,
-      response_modes_supported: ["direct_post.jwt"],
+      response_mode: "direct_post.jwt",
       nonce: nonce,
     dcql_query: {
     credentials: [
