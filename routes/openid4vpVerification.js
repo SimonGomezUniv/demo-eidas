@@ -75,7 +75,6 @@ class OpenID4VPVerificationRouter {
         response_types_supported: ['vp_token']
       },
       state: state,
-      aud: responseUri,
       exp: now + 600, // 10 minutes
       iat: now
     };
