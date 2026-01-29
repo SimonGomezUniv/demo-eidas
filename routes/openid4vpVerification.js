@@ -26,9 +26,9 @@ class OpenID4VPVerificationRouter {
 
     return {
       response_type: 'vp_token',
-      client_id: `http:/smngmz.com`,
+      client_id: `https://smngmz.com`,
       response_uri: responseUri,
-      response_mode: 'direct_post.jwt',
+      response_modes_supported: ["direct_post.jwt"],
       nonce: nonce,
       dcql_query: {
         credentials: [
@@ -50,7 +50,7 @@ class OpenID4VPVerificationRouter {
         ],
         credential_sets: [
           {
-            options: [['0', '1', '2', '3']],
+            options: [['custom_credential']],
             purpose: 'purpose test custom'
           }
         ]
