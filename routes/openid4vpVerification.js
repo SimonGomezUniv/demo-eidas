@@ -218,7 +218,7 @@ class OpenID4VPVerificationRouter {
 
         // Générer le contenu du QR code
         // Format OpenID4VP : openid4vp://?request_uri=...
-        const qrContent = `${walletUrl}?presentation_request_uri=${encodeURIComponent(presentationRequestUri)}`;
+        const qrContent = `${walletUrl}?request_uri=${encodeURIComponent(presentationRequestUri)}`;
 
         // Générer le QR code avec le contenu correct
         const qrCodeUrl = await QRCode.toDataURL(qrContent);
