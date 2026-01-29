@@ -30,31 +30,30 @@ class OpenID4VPVerificationRouter {
       response_uri: responseUri,
       response_modes_supported: ["direct_post.jwt"],
       nonce: nonce,
-      dcql_query: {
-        credentials: [
-          {
-            id: '0',
-            format: 'dc+sd-jwt',
-            meta: {
-              vct_values: [
-                'https://example.eudi.ec.europa.eu/tax-id/1'
-              ]
-            },
-            claims: [
-              {
-                path: ['custom_credential'],
-                id: 'id'
-                }
-            ]
-          }
-        ],
-        credential_sets: [
-          {
-            options: [['custom_credential']],
-            purpose: 'purpose test custom'
-          }
+    dcql_query: {
+    credentials: [
+        {
+        id: "custom_credential",
+        format: "jwt_vc",
+        meta: {
+            type_values: ["CustomCredential"]
+        },
+        claims: [
+            {
+            id: "customData",
+            path: ["credentialSubject", "customData"]
+            }
         ]
-      },
+        }
+    ],
+    credential_sets: [
+        {
+        options: [["custom_credential"]],
+        purpose: "Provide the custom credential issued by smngmz.com"
+        }
+    ]
+    },
+
       client_metadata: {
         jwks: {
           keys: [
