@@ -58,8 +58,7 @@ class OpenID4VPVerificationRouter {
       client_metadata: {
         jwks: {
           keys: [
-            this.signer.keyManager.getECPublicKeyAsJWK(),
-            this.signer.keyManager.getPublicKeyAsJWK()
+            this.signer.keyManager.getECPublicKeyAsJWK()
           ]
         },
         vp_formats_supported: {
