@@ -26,7 +26,7 @@ class OpenID4VPVerificationRouter {
 
     return {
       response_type: 'vp_token',
-      client_id: `x509_hash:${this._getClientIdHash()}`, // Utiliser un hash X.509 pour le client ID
+      client_id: `http:/smngmz.com`,
       response_uri: responseUri,
       response_mode: 'direct_post.jwt',
       nonce: nonce,
