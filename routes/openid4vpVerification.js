@@ -42,94 +42,16 @@ class OpenID4VPVerificationRouter {
             },
             claims: [
               {
-                path: ['tax_number'],
-                id: 'tax_number'
-              },
-              {
-                path: ['affiliation_country'],
-                id: 'affiliation_country'
-              }
-            ]
-          },
-          {
-            id: '1',
-            format: 'dc+sd-jwt',
-            meta: {
-              vct_values: [
-                'https://example.eudi.ec.europa.eu/cor/1'
-              ]
-            },
-            claims: [
-              {
-                path: ['resident_address'],
-                id: 'resident_address'
-              },
-              {
-                path: ['arrival_date'],
-                id: 'arrival_date'
-              }
-            ]
-          },
-          {
-            id: '2',
-            format: 'dc+sd-jwt',
-            meta: {
-              vct_values: [
-                'eu.europa.ec.eudi.hiid.1'
-              ]
-            },
-            claims: [
-              {
-                path: ['health_insurance_id'],
-                id: 'health_insurance_id'
-              },
-              {
-                path: ['affiliation_country'],
-                id: 'affiliation_country'
-              },
-              {
-                path: ['matching_institution_id'],
-                id: 'matching_institution_id'
-              }
-            ]
-          },
-          {
-            id: '3',
-            format: 'dc+sd-jwt',
-            meta: {
-              vct_values: [
-                'urn:eudi:pid:1',
-                'https://demo.pid-issuer.bundesdruckerei.de/credentials/pid/1.0'
-              ]
-            },
-            claims: [
-              {
-                path: ['given_name'],
-                id: 'given_name'
-              },
-              {
-                path: ['family_name'],
-                id: 'family_name'
-              },
-              {
-                path: ['birthdate'],
-                id: 'birthdate'
-              },
-              {
-                path: ['address', 'country'],
-                id: 'address_country'
-              },
-              {
-                path: ['nationalities'],
-                id: 'nationalities'
-              }
+                path: ['custom_credential'],
+                id: 'id'
+                }
             ]
           }
         ],
         credential_sets: [
           {
             options: [['0', '1', '2', '3']],
-            purpose: 'To open an Open Horizon Bank account, we need to verify your name, date of birth, country of residence and nationality'
+            purpose: 'purpose test custom'
           }
         ]
       },
