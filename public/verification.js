@@ -147,7 +147,7 @@ function displayVerificationUI(data) {
   if (credentialType) credentialType.textContent = formatCredentialType(data.credential_type);
   if (verifier) verifier.textContent = data.verifier;
   if (expiry) expiry.textContent = `${data.expires_in} secondes`;
-  if (qrCodeUrl && data.qr_content) qrCodeUrl.value = data.qr_content;
+  if (qrCodeUrl && data.presentation_request_uri) qrCodeUrl.value = data.presentation_request_uri;
 
   // Scroller vers la section
   if (verificationSection) {
