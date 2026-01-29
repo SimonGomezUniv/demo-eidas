@@ -64,7 +64,10 @@ class OpenID4VPVerificationRouter {
           'dc+sd-jwt': {
             'sd-jwt_alg_values': ['ES256', 'ES384', 'EdDSA', 'Ed25519', 'ES256K'],
             'kb-jwt_alg_values': ['ES256', 'ES384', 'EdDSA', 'Ed25519', 'ES256K']
-          }
+          },
+            "jwt_vc": {
+                "alg_values_supported": ["ES256", "RS256"]
+            }
         },
         encrypted_response_enc_values_supported: ['A128GCM', 'A256GCM', 'A128CBC-HS256'],
         logo_uri: `${config.baseUrl}/assets/verifiers/openbank.png`,
