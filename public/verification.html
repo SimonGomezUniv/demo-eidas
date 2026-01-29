@@ -69,6 +69,11 @@
           <div class="qr-container">
             <img id="qrCodeVerification" src="" alt="QR Code" class="qr-code">
             <p class="qr-instruction">Scannez avec votre wallet EIDAS</p>
+            <!-- URL du QR Code -->
+            <div class="qr-url-container">
+              <label>URL du QR Code:</label>
+              <input type="text" id="qrCodeUrl" readonly class="qr-url-input">
+            </div>
           </div>
 
           <!-- Informations -->
@@ -94,12 +99,6 @@
               <span id="verificationStatusBadge" class="status-badge">⏳ En attente...</span>
             </div>
           </div>
-        </div>
-
-        <!-- URL complète -->
-        <div class="url-container">
-          <label>URL du Wallet:</label>
-          <input type="text" id="verificationWalletUrl" readonly class="url-input">
         </div>
 
         <!-- Bouton de réinitialisation -->

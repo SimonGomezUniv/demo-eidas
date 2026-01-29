@@ -140,14 +140,14 @@ function displayVerificationUI(data) {
   const credentialType = document.getElementById('verificationCredentialType');
   const verifier = document.getElementById('verificationVerifier');
   const expiry = document.getElementById('verificationExpiry');
-  const walletUrl = document.getElementById('verificationWalletUrl');
+  const qrCodeUrl = document.getElementById('qrCodeUrl');
 
   if (qrCode) qrCode.src = data.qr_code;
   if (sessionId) sessionId.textContent = data.session_id;
   if (credentialType) credentialType.textContent = formatCredentialType(data.credential_type);
   if (verifier) verifier.textContent = data.verifier;
   if (expiry) expiry.textContent = `${data.expires_in} secondes`;
-  if (walletUrl && data.qr_content) walletUrl.textContent = data.qr_content;
+  if (qrCodeUrl && data.qr_content) qrCodeUrl.value = data.qr_content;
 
   // Scroller vers la section
   if (verificationSection) {
